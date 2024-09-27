@@ -3,7 +3,7 @@
 /*    Module:       main.cpp                                                  */
 /*    Author:       University of Delaware Team 2                             */
 /*    Created:      X/XX/2024                                                 */
-/*    Description:  Software for Robot 2 of UD's VEXU Varsity Team            */
+/*    Description:  Software for Robot EGG of UD's VEXU Team                  */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
