@@ -22,6 +22,14 @@ using namespace vex;
 #define BELTRANGE 10 // Margin of error around throw position
 #define BELTSPEED -100 // Speed of belt motor
 
+// PID Defintions
+#define KP 0.01
+#define LR_KP 0.05
+#define TILEREVOLUTIONS 2.78
+#define TIMEOUT_TIME 2000 // Time in milliseconds to wait for a command to complete
+#define MINVOLTAGE 6
+#define MAXVOLTAGE 8
+
 // Button Mapping
 #define ACTUATOR_TOGGLE_BUTTON primary_controller.ButtonR1.pressing()
 #define BELT_TOGGLE_BUTTON primary_controller.ButtonX.pressing()
@@ -97,6 +105,114 @@ std::string format_decimal_places(double value, int places) {
     ss << std::fixed << std::setprecision(places) << value;
     return ss.str();
 }
+
+// PID Control
+double PIDControl(double target, double position){
+    return (target - position) * KP;
+}
+
+void rotateTo(double target) {
+    vex::timer timer = vex::timer();
+
+    bool is_negative = (target < 0);
+    double magnitude = fabs(target);
+    double avg_pos = 0;
+    
+    left_motor_group.setPosition(0, vex::rotationUnits::deg);
+    right_motor_group.setPosition(0, vex::rotationUnits::deg);
+    timer.reset();
+    double start_time = timer.value();
+
+    // PID Loop
+    while (!(avg_pos <= target && avg_pos >= target - 1)) {
+        double left_pos = abs(left_motor_group.position(vex::rotationUnits::deg));
+        double right_pos = abs(right_motor_group.position(vex::rotationUnits::deg));
+        avg_pos = (left_pos + right_pos) / 2;
+        double drive = PIDControl(target, avg_pos);
+        
+        // Clamp voltage to min and max 
+        if (drive < MINVOLTAGE && drive > 0) {
+            drive = MINVOLTAGE;
+        } else if (drive > -MINVOLTAGE && drive < 0) {
+            drive = -MINVOLTAGE;
+        }
+        if (drive < MAXVOLTAGE) {
+            drive = MAXVOLTAGE;
+        } else if (drive < -MAXVOLTAGE) {
+            drive = -MAXVOLTAGE;
+        }
+        
+        double left_drive = drive;
+        double right_drive = drive;
+        if (left_pos > right_pos) {
+            left_drive += (right_pos - left_pos) * LR_KP;
+        } else {
+            right_drive += (left_pos - right_pos) * LR_KP;
+        }
+
+        if (is_negative) { 
+            left_motor_group.spin(reverse, left_drive, vex::voltageUnits::volt);
+            right_motor_group.spin(forward, right_drive, vex::voltageUnits::volt);
+        } else {
+            left_motor_group.spin(forward, left_drive, vex::voltageUnits::volt);
+            right_motor_group.spin(reverse, right_drive, vex::voltageUnits::volt);
+        } 
+        if ((timer.value() - start_time) > TIMEOUT_TIME) {
+            break;
+        }
+    }
+
+    left_motor_group.stop();
+    right_motor_group.stop();
+}
+
+void driveForward(int tiles){
+int t = (int)(tiles * TILEREVOLUTIONS);
+float avg_position = 0;
+
+left_motor_group.setPosition(0, degrees);
+right_motor_group.setPosition(0, degrees);
+
+uint32_t start_time = Brain.Timer.time();
+
+while(!(t+1 > avg_position && avg_position > t-1)){
+    double left_position = left_motor_group.position(degrees);
+    double right_position = right_motor_group.position(degrees);
+    avg_position = (left_position + right_position) / 2;
+    double drive = PIDControl(t, avg_position); // Calculate the drive value
+
+    // Don't allow drive to go below minimum voltage (speed)
+    drive = (drive < MINVOLTAGE && drive > 0) ? MINVOLTAGE : drive;
+    drive = (drive > -MINVOLTAGE && drive < 0) ? -MINVOLTAGE : drive;
+
+    // Don't allow drive to go above maximum voltage (speed)
+    drive = (drive > MAXVOLTAGE) ? MAXVOLTAGE : drive;
+    drive = (drive < -MAXVOLTAGE) ? -MAXVOLTAGE : drive;
+
+    // P-Control between left and right motors
+    double left_voltage_drive, right_voltage_drive = drive;
+    if(left_position > right_position)
+        left_voltage_drive += (right_position - left_position) * LR_KP; // If left is ahead, slow down left
+    else
+        right_voltage_drive += (left_position - right_position) * LR_KP; // If right is ahead, slow down right
+
+    // Set the motor voltages
+    left_motor_group.spin(forward, left_voltage_drive, voltageUnits::volt);
+    right_motor_group.spin(forward, right_voltage_drive, voltageUnits::volt);
+    
+    uint32_t elapsed_time = Brain.Timer.time() - start_time;
+    if(elapsed_time > TIMEOUT_TIME)
+        break; // Break if the command takes too long
+
+}
+
+// Stop the motors
+left_motor_group.stop(brakeType::brake);
+right_motor_group.stop(brakeType::brake);
+
+return;
+}
+
 
 void intake_toggle(void){
     std::cout<<"Intake Toggle"<<std::endl;
