@@ -2,7 +2,7 @@
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
 /*    Author:       University of Delaware Team 2                             */
-/*    Created:      X/XX/2024                                                 */
+/*    Created:      2/13/2025                                                 */
 /*    Description:  Software for Robot EGG of UD's VEXU Team                  */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
@@ -31,7 +31,8 @@ using namespace vex;
 #define SWITCH_DRIVE_TANK primary_controller.ButtonUp.pressing()
 #define SWITCH_DRIVE_DUAL primary_controller.ButtonDown.pressing()
 #define SWITCH_COLOR_FILTERING primary_controller.ButtonA.pressing()
-#define HIGHSTAKES_MOTOR_BUTTON primary_controller.ButtonL2.pressing()
+#define HIGHSTAKES_FORWARD_MOTOR_BUTTON primary_controller.ButtonL2.pressing()
+#define HIGHSTAKES_BACKWARD_MOTOR_BUTTON primary_controller.ButtonL1.pressing()
 
 // TODO: BUTTON MAP, TOGGLE BELT ON ONE BUTTON, REVERSE BELT ON ANOTHER BUTTON, INTAKE STAY BACK AND FORTH, TRIGGER FOR ACTUATOR
 
@@ -217,7 +218,7 @@ void displayStatus() {
     std::string belt_status = "BELT MTR TMP" + format_decimal_places(belt_motor_temp, 1);
     double battery_soc = Brain.Battery.capacity();
     std::string battery_status = "BAT" + format_decimal_places(battery_soc, 1);
-
+    
     primary_controller.Screen.print(belt_status.c_str());
     primary_controller.Screen.print(battery_status.c_str());
     this_thread::sleep_for(100);
@@ -363,13 +364,8 @@ void usercontrol(void) {
         //bool buttonR2 = primary_controller.ButtonR2.pressing();
         //bool buttonL1 = primary_controller.ButtonL1.pressing();
         //bool buttonL2 = primary_controller.ButtonL2.pressing();
-
-    
-
         reverse_belt = REVERSE_BELT_BUTTON;
        
-        
-
         if(INTAKE_FORWARD_BUTTON && !INTAKE_REVERSE_BUTTON){
             intake_motor.setVelocity(-100, vex::percentUnits::pct);
             intake_motor.spin(forward);
@@ -380,6 +376,19 @@ void usercontrol(void) {
         }
         else{
             intake_motor.stop(brake);
+        }
+
+        //TODO: MAY NEED TO BE REVERSED IDK MANE
+        if(HIGHSTAKES_FORWARD_MOTOR_BUTTON){
+            highstake_motor.setVelocity(100, vex::percentUnits::pct);
+            highstake_motor.spin(forward);
+        }
+        else if(HIGHSTAKES_BACKWARD_MOTOR_BUTTON){
+            highstake_motor.setVelocity(-100, vex::percentUnits::pct);
+            highstake_motor.spin(forward);
+        }
+        else{
+            highstake_motor.stop(brake);
         }
 
 
