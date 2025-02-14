@@ -10,6 +10,8 @@
 #include <iostream>
 #include "vex.h"
 #include <math.h>
+#include <sstream>
+#include <iomanip>
 
 using namespace vex;
 
@@ -20,7 +22,7 @@ using namespace vex;
 #define BELTRANGE 10 // Margin of error around throw position
 #define BELTSPEED -100 // Speed of belt motor
 
-
+// TODO: BUTTON MAP, TOGGLE BELT ON ONE BUTTON, REVERSE BELT ON ANOTHER BUTTON, INTAKE STAY BACK AND FORTH, TRIGGER FOR ACTUATOR
 
 // Global Constants
 // Make sure to define a motor with the right gear ratio (motor gear color)
@@ -37,20 +39,28 @@ competition compete;
 controller primary_controller = controller(primary);
 
 // define your global instances of motors and other devices here
-motor left_motor_front = motor(PORT17, BLUE_GEAR, false);
-motor left_motor_mid = motor(PORT13, BLUE_GEAR, false);
-motor left_motor_back = motor(PORT10, BLUE_GEAR, false);
-motor_group left_motor_group = motor_group(left_motor_front, left_motor_mid, left_motor_back);
+motor left_motor_front = motor(PORT17, BLUE_GEAR, true);
+motor left_motor_mid1 = motor(PORT18, BLUE_GEAR, false);
+motor left_motor_mid2 = motor(PORT19, BLUE_GEAR, true);
+motor left_motor_back = motor(PORT20, BLUE_GEAR, false);
+motor_group left_motor_group = motor_group(left_motor_front, left_motor_mid1, left_motor_mid2, left_motor_back);
 
-motor right_motor_front = motor(PORT15, BLUE_GEAR, true);
-motor right_motor_mid = motor(PORT8, BLUE_GEAR, true);
-motor right_motor_back = motor(PORT9, BLUE_GEAR, true);
-motor_group right_motor_group = motor_group(right_motor_front, right_motor_mid, right_motor_back);
+motor right_motor_front = motor(PORT7, BLUE_GEAR, true);
+motor right_motor_mid1 = motor(PORT8, BLUE_GEAR, false);
+motor right_motor_mid2 = motor(PORT9, BLUE_GEAR, true);
+motor right_motor_back = motor(PORT10, BLUE_GEAR, false);
+motor_group right_motor_group = motor_group(right_motor_front, right_motor_mid1, right_motor_mid2, right_motor_back);
 
-motor intake_motor = motor(PORT18, GREEN_GEAR, false);
-motor belt_motor = motor(PORT16, BLUE_GEAR, false);
+motor intake_motor = motor(PORT3, GREEN_GEAR, false);
+motor belt_motor = motor(PORT4, BLUE_GEAR, false);
+motor highstake_motor = motor(PORT5, RED_GEAR, false);
 
 digital_out Actuator = digital_out(Brain.ThreeWirePort.A);
+
+enum driveMode{
+    TANK,DUAL_STICK
+};
+driveMode currentDriveMode = TANK;
 
 // Global Variables
 volatile bool belt_toggle_state = false;
@@ -58,14 +68,23 @@ volatile bool color_detected = true; // TODO: Set up control to vision sensor
 volatile bool reverse_belt = false;
 
 // Actuator Control
+// Actuator Control
 bool actuatorToggle = false;
 void actuator_thread(void){
     while(true){
         if(primary_controller.ButtonB.pressing()){
             (actuatorToggle) ? Actuator.set(false) : Actuator.set(true);
             actuatorToggle = !actuatorToggle;
+            this_thread::sleep_for(250);
         }
+        this_thread::sleep_for(20);
     }
+}
+
+std::string format_decimal_places(double value, int places) {
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(places) << value;
+    return ss.str();
 }
 
 void intake_toggle(void){
@@ -164,30 +183,59 @@ enum VisionState {
 
 VisionState currentState = RED; // Start with red vision
 
+
 // Function to display the current status on the brain screen
 void displayStatus() {
     Brain.Screen.clearScreen();
+    primary_controller.Screen.clearScreen();
     Brain.Screen.setCursor(1, 1);
-    std::cout<<belt_motor.temperature(temperatureUnits::celsius)<<std::endl;
+
     switch (currentState) {
         case RED:
             Brain.Screen.clearScreen(red);
             Brain.Screen.drawCircle(50, 50, 50, blue);
             primary_controller.Screen.clearScreen();
-            primary_controller.Screen.print("Ejecting Red Rings\n");
+            primary_controller.Screen.print("Eject RED\n");
+
+            
             
             break;
         case BLUE:
             Brain.Screen.clearScreen(blue);
-            primary_controller.Screen.print("Ejecting Blue Rings\n");
+
+        
+
+            primary_controller.Screen.clearScreen();
+            primary_controller.Screen.print("Eject BLU\n");
             Brain.Screen.drawCircle(50, 50, 50, red);
             break;
         case OFF:
             Brain.Screen.clearScreen(black);
             Brain.Screen.drawCircle(50, 50, 50, purple);
-            primary_controller.Screen.print("Ejection Off\n");
+
+            primary_controller.Screen.clearScreen();
+            primary_controller.Screen.print("Eject OFF\n");
+
+            
             return; 
     }
+    switch (currentDriveMode){
+        case TANK:
+            primary_controller.Screen.print("DRIVE TANK");
+            break;
+        case DUAL_STICK:
+            primary_controller.Screen.print("DRIVE DUAL");
+            break;
+    }
+    double belt_motor_temp = belt_motor.temperature(temperatureUnits::celsius);
+    //std::string belt_status = "BELT MTR TMP" + format_decimal_places(belt_motor_temp, 1);
+    double battery_soc = Brain.Battery.capacity();
+    //std::string battery_status = "BAT" + format_decimal_places(battery_soc, 1);
+
+    //primary_controller.Screen.print(belt_status);
+
+    //primary_controller.Screen.print(battery_status);
+    this_thread::sleep_for(100);
 }
 
 // Vision Sensor Thread
@@ -255,13 +303,11 @@ void autonomous(void) {
 }
 
 // Code block for User Control
-enum driveMode{
-    TANK,DUAL_STICK
-};
+
 void dual_stick_drive(void){
 
     // Controls for Up-Down and Left-Right movement
-    float leftStick = -(float)(primary_controller.Axis3.position() / 100.0);             // Vertical Movement
+    float leftStick = (float)(primary_controller.Axis3.position() / 100.0);             // Vertical Movement
     float rightStick = primary_controller.Axis1.position() / (float)-100.0;            // Horizontal Movement
    
     
@@ -294,8 +340,8 @@ void dual_stick_drive(void){
 
 void tank_drive(void){
     // Controls for Up-Down and Left-Right movement
-    float leftStick = (primary_controller.Axis3.position() / -(float)100.0);             // Vertical Movement
-    float rightStick = (primary_controller.Axis1.position() / -(float)100.0);            // Horizontal Movement
+    float rightStick = (primary_controller.Axis3.position() / (float)100.0);             // Vertical Movement
+    float leftStick = (primary_controller.Axis2.position() / (float)100.0);            // Horizontal Movement
    
     // Motor speed percentage based on cubed function
     float leftSpeed = pow(leftStick, 3);
@@ -321,7 +367,7 @@ void tank_drive(void){
 
 }
 
-driveMode currentDriveMode = DUAL_STICK;
+
 void usercontrol(void) {
     Brain.Screen.print("User Control start!");
     Brain.Screen.newLine();
@@ -373,7 +419,19 @@ void usercontrol(void) {
         }
         */
 
-        dual_stick_drive();
+        if(primary_controller.ButtonUp.pressing())
+            currentDriveMode = TANK;
+        else if(primary_controller.ButtonDown.pressing())
+            currentDriveMode = DUAL_STICK;
+
+        switch (currentDriveMode){
+            case TANK:
+                tank_drive();
+                break;
+            case DUAL_STICK:
+                dual_stick_drive();
+                break;
+        }
     }
 }
 
@@ -389,6 +447,7 @@ int main() {
     primary_controller.ButtonL1.pressed(belt_toggle_on);
     primary_controller.ButtonL2.pressed(belt_toggle_off);
 
+    thread displayStatus = thread(displayStatus);
     thread actuatorThread = thread(actuator_thread);
     thread beltThread = thread(belt_control);
     thread visionThread = thread(vision_sensor_thread);
