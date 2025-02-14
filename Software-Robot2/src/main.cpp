@@ -32,15 +32,15 @@ using namespace vex;
 
 // Button Mapping
 #define ACTUATOR_TOGGLE_BUTTON primary_controller.ButtonR1.pressing()
-#define BELT_TOGGLE_BUTTON primary_controller.ButtonX.pressing()
-#define INTAKE_FORWARD_BUTTON primary_controller.ButtonR2.pressing()
-#define INTAKE_REVERSE_BUTTON primary_controller.ButtonB.pressing()
-#define REVERSE_BELT_BUTTON primary_controller.ButtonY.pressing()
+#define BELT_TOGGLE_BUTTON secondary_controller.ButtonX.pressing()
+#define INTAKE_FORWARD_BUTTON secondary_controller.ButtonR2.pressing()
+#define INTAKE_REVERSE_BUTTON secondary_controller.ButtonB.pressing()
+#define REVERSE_BELT_BUTTON secondary_controller.ButtonY.pressing()
 #define SWITCH_DRIVE_TANK primary_controller.ButtonUp.pressing()
 #define SWITCH_DRIVE_DUAL primary_controller.ButtonDown.pressing()
 #define SWITCH_COLOR_FILTERING primary_controller.ButtonA.pressing()
-#define HIGHSTAKES_FORWARD_MOTOR_BUTTON primary_controller.ButtonL2.pressing()
-#define HIGHSTAKES_BACKWARD_MOTOR_BUTTON primary_controller.ButtonL1.pressing()
+#define HIGHSTAKES_FORWARD_MOTOR_BUTTON secondary_controller.ButtonL2.pressing()
+#define HIGHSTAKES_BACKWARD_MOTOR_BUTTON secondary_controller.ButtonL1.pressing()
 
 // TODO: BUTTON MAP, TOGGLE BELT ON ONE BUTTON, REVERSE BELT ON ANOTHER BUTTON, INTAKE STAY BACK AND FORTH, TRIGGER FOR ACTUATOR
 
@@ -57,6 +57,7 @@ vex::brain Brain;
 competition compete;
 // Global instance of controller
 controller primary_controller = controller(primary);
+controller secondary_controller = controller(partner);
 
 // define your global instances of motors and other devices here
 motor left_motor_front = motor(PORT17, BLUE_GEAR, true);
