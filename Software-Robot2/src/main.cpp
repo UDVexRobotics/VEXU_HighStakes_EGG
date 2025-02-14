@@ -22,6 +22,17 @@ using namespace vex;
 #define BELTRANGE 10 // Margin of error around throw position
 #define BELTSPEED -100 // Speed of belt motor
 
+// Button Mapping
+#define ACTUATOR_TOGGLE_BUTTON primary_controller.ButtonR1.pressing()
+#define BELT_TOGGLE_BUTTON primary_controller.ButtonX.pressing()
+#define INTAKE_FORWARD_BUTTON primary_controller.ButtonR2.pressing()
+#define INTAKE_REVERSE_BUTTON primary_controller.ButtonB.pressing()
+#define REVERSE_BELT_BUTTON primary_controller.ButtonY.pressing()
+#define SWITCH_DRIVE_TANK primary_controller.ButtonUp.pressing()
+#define SWITCH_DRIVE_DUAL primary_controller.ButtonDown.pressing()
+#define SWITCH_COLOR_FILTERING primary_controller.ButtonA.pressing()
+#define HIGHSTAKES_MOTOR_BUTTON primary_controller.ButtonL2.pressing()
+
 // TODO: BUTTON MAP, TOGGLE BELT ON ONE BUTTON, REVERSE BELT ON ANOTHER BUTTON, INTAKE STAY BACK AND FORTH, TRIGGER FOR ACTUATOR
 
 // Global Constants
@@ -68,11 +79,10 @@ volatile bool color_detected = true; // TODO: Set up control to vision sensor
 volatile bool reverse_belt = false;
 
 // Actuator Control
-// Actuator Control
 bool actuatorToggle = false;
 void actuator_thread(void){
     while(true){
-        if(primary_controller.ButtonB.pressing()){
+        if(ACTUATOR_TOGGLE_BUTTON){
             (actuatorToggle) ? Actuator.set(false) : Actuator.set(true);
             actuatorToggle = !actuatorToggle;
             this_thread::sleep_for(250);
@@ -107,24 +117,6 @@ void belt_control(void){
         int belt_position = abs((((int)belt_motor.position(vex::rotationUnits::deg)) % BELT_THROW_POSITION));
         Brain.Screen.printAt(1, 150, "Belt Position: %6d", belt_position);
         belt_motor.position(vex::rotationUnits::deg);
-        /*
-        if(color_detected && belt_position >= -BELTRANGE/3 && belt_position <= BELTRANGE){
-            belt_motor.stop(vex::brakeType::brake);
-            std::cout<<"Ejecting Ring!"<<std::endl;
-            std::cout<<"Belt Position: "<<belt_position<<std::endl;
-
-            wait(1, sec);
-            while(belt_position >= 0 && belt_position <= BELTRANGE){
-                if(reverse_belt)
-                    belt_motor.setVelocity(-BELTSPEED, vex::percentUnits::pct);
-                else
-                    belt_motor.setVelocity(BELTSPEED, vex::percentUnits::pct);
-
-                belt_motor.spin(forward);
-                belt_position = abs((((int)belt_motor.position(vex::rotationUnits::deg)) % BELT_THROW_POSITION));
-            }
-        }
-        */
 
        if(color_detected){
             wait(0.15, sec); // Wait until at peak
@@ -135,20 +127,12 @@ void belt_control(void){
             //belt_motor.setVelocity(BELTSPEED, vex::percentUnits::pct);
             belt_motor.spin(forward);
             wait(0.7, sec);
-
-
-            /*
-            while(belt_position >= 0 && belt_position <= BELTRANGE){
-                if(reverse_belt)
-                    belt_motor.setVelocity(-BELTSPEED, vex::percentUnits::pct);
-                else
-                    belt_motor.setVelocity(BELTSPEED, vex::percentUnits::pct);
-
-                belt_motor.spin(forward);
-                belt_position = abs((((int)belt_motor.position(vex::rotationUnits::deg)) % BELT_THROW_POSITION));
-            }
-            */
        }
+
+        if(BELT_TOGGLE_BUTTON){
+            belt_toggle_state = !belt_toggle_state;
+            this_thread::sleep_for(250);
+        }
 
         if(belt_toggle_state){
             if(reverse_belt)
@@ -161,6 +145,8 @@ void belt_control(void){
         else{
             belt_motor.stop(brake);
         }
+
+        this_thread::sleep_for(20);
 
 
     }
@@ -228,13 +214,12 @@ void displayStatus() {
             break;
     }
     double belt_motor_temp = belt_motor.temperature(temperatureUnits::celsius);
-    //std::string belt_status = "BELT MTR TMP" + format_decimal_places(belt_motor_temp, 1);
+    std::string belt_status = "BELT MTR TMP" + format_decimal_places(belt_motor_temp, 1);
     double battery_soc = Brain.Battery.capacity();
-    //std::string battery_status = "BAT" + format_decimal_places(battery_soc, 1);
+    std::string battery_status = "BAT" + format_decimal_places(battery_soc, 1);
 
-    //primary_controller.Screen.print(belt_status);
-
-    //primary_controller.Screen.print(battery_status);
+    primary_controller.Screen.print(belt_status.c_str());
+    primary_controller.Screen.print(battery_status.c_str());
     this_thread::sleep_for(100);
 }
 
@@ -245,7 +230,7 @@ int vision_sensor_thread() {
     std::cout<<(int)vSens.getBrightness()<<std::endl;
     while (true) {
         // Check if Button A is pressed to toggle vision state
-        if (primary_controller.ButtonA.pressing()) {
+        if(SWITCH_COLOR_FILTERING) {
             // Cycle through the states: RED -> BLUE -> OFF -> RED
             currentState = static_cast<VisionState>((currentState + 1) % 3);
 
@@ -374,54 +359,33 @@ void usercontrol(void) {
     
     // Usercontrol loop
     while(true){
-        bool buttonR1 = primary_controller.ButtonR1.pressing();
-        bool buttonR2 = primary_controller.ButtonR2.pressing();
-        bool buttonL1 = primary_controller.ButtonL1.pressing();
-        bool buttonL2 = primary_controller.ButtonL2.pressing();
+        //bool buttonR1 = primary_controller.ButtonR1.pressing();
+        //bool buttonR2 = primary_controller.ButtonR2.pressing();
+        //bool buttonL1 = primary_controller.ButtonL1.pressing();
+        //bool buttonL2 = primary_controller.ButtonL2.pressing();
 
     
 
-        if(primary_controller.ButtonY.pressing()){
-            reverse_belt = true;
-            //std::cout<<"Reverse Belt"<<std::endl;
-        }
-        else{
-            reverse_belt = false;
-        }
-    
-
-        
+        reverse_belt = REVERSE_BELT_BUTTON;
        
         
 
-        if(buttonR1 && !buttonR2){
+        if(INTAKE_FORWARD_BUTTON && !INTAKE_REVERSE_BUTTON){
             intake_motor.setVelocity(-100, vex::percentUnits::pct);
             intake_motor.spin(forward);
         }
-        else if(buttonR2 && !buttonR1){
+        else if(INTAKE_REVERSE_BUTTON && !INTAKE_FORWARD_BUTTON){
             intake_motor.setVelocity(100, vex::percentUnits::pct);
             intake_motor.spin(forward); 
         }
         else{
             intake_motor.stop(brake);
         }
-        /*
-        if(buttonL1 && !buttonL2){
-            belt_motor.setVelocity(-100, vex::percentUnits::pct);
-            belt_motor.spin(forward);   
-        }
-        else if(buttonL2 && !buttonL1){
-            belt_motor.setVelocity(100, vex::percentUnits::pct);
-            belt_motor.spin(forward); 
-        }
-        else{
-            belt_motor.stop(brake);
-        }
-        */
 
-        if(primary_controller.ButtonUp.pressing())
+
+        if(SWITCH_DRIVE_TANK)
             currentDriveMode = TANK;
-        else if(primary_controller.ButtonDown.pressing())
+        else if(SWITCH_DRIVE_DUAL)
             currentDriveMode = DUAL_STICK;
 
         switch (currentDriveMode){
@@ -444,10 +408,10 @@ int main() {
     compete.drivercontrol(usercontrol);
 
     primary_controller.ButtonR1.pressed(intake_toggle);
-    primary_controller.ButtonL1.pressed(belt_toggle_on);
-    primary_controller.ButtonL2.pressed(belt_toggle_off);
+    //primary_controller.ButtonL1.pressed(belt_toggle_on);
+    //primary_controller.ButtonL2.pressed(belt_toggle_off);
 
-    thread displayStatus = thread(displayStatus);
+    thread display_Status = thread(displayStatus);
     thread actuatorThread = thread(actuator_thread);
     thread beltThread = thread(belt_control);
     thread visionThread = thread(vision_sensor_thread);
