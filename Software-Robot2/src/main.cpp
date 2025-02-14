@@ -34,7 +34,7 @@ using namespace vex;
 #define ACTUATOR_TOGGLE_BUTTON primary_controller.ButtonR1.pressing()
 #define BELT_TOGGLE_BUTTON secondary_controller.ButtonX.pressing()
 #define INTAKE_FORWARD_BUTTON secondary_controller.ButtonR2.pressing()
-#define INTAKE_REVERSE_BUTTON secondary_controller.ButtonB.pressing()
+#define INTAKE_REVERSE_BUTTON secondary_controller.ButtonR1.pressing()
 #define REVERSE_BELT_BUTTON secondary_controller.ButtonY.pressing()
 #define SWITCH_DRIVE_TANK primary_controller.ButtonUp.pressing()
 #define SWITCH_DRIVE_DUAL primary_controller.ButtonDown.pressing()
