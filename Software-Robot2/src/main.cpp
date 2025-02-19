@@ -23,12 +23,16 @@ using namespace vex;
 #define BELTSPEED -100 // Speed of belt motor
 
 // PID Defintions
-#define KP 0.001
+#define KP 0.01
 #define LR_KP 0.05
-#define TILEREVOLUTIONS 1000
+#define WHEELSIZE 2.75    // Inches Diameter
+#define TILEDISTANCE (2 * 12) // 2 feet
+#define MANUAL_OFFSET 1.3
+#define TILEREVOLUTIONS(offset) (TILEDISTANCE / (M_PI * WHEELSIZE)) + offset // Revolutions per Tile (S / (PI)*Diameter = Revolutions )
 #define TIMEOUT_TIME 2000 // Time in milliseconds to wait for a command to complete
-#define MINVOLTAGE 6
+#define MINVOLTAGE 1
 #define MAXVOLTAGE 8
+
 
 // Button Mapping
 #define ACTUATOR_TOGGLE_BUTTON primary_controller.ButtonR1.pressing()
@@ -169,7 +173,10 @@ void rotateTo(double target) {
 }
 
 void driveForward(int tiles){
-    int t = (int)(tiles * TILEREVOLUTIONS);
+    int t = (int)(tiles * (TILEREVOLUTIONS(MANUAL_OFFSET)) * 360.0);
+    std::cout<<((TILEREVOLUTIONS(MANUAL_OFFSET)) * 360.0)<<std::endl;
+    std::cout<<TILEREVOLUTIONS(MANUAL_OFFSET)<<std::endl;
+    std::cout<<"Target: "<<t<<std::endl;
     float avg_position = 0;
 
     left_motor_group.setPosition(0, degrees);
@@ -233,7 +240,7 @@ void belt_toggle_off(void){
 void belt_control(void){
     while(true){
         int belt_position = abs((((int)belt_motor.position(vex::rotationUnits::deg)) % BELT_THROW_POSITION));
-        Brain.Screen.printAt(1, 150, "Belt Position: %6d", belt_position);
+        //Brain.Screen.printAt(1, 150, "Belt Position: %6d", belt_position);
         belt_motor.position(vex::rotationUnits::deg);
 
        if(color_detected){
@@ -291,14 +298,14 @@ VisionState currentState = RED; // Start with red vision
 // Function to display the current status on the brain screen
 void displayStatus() {
     while(true){
-    Brain.Screen.clearScreen();
+    //Brain.Screen.clearScreen();
     primary_controller.Screen.clearScreen();
     secondary_controller.Screen.clearScreen();
 
     switch (currentState) {
         case RED:
             Brain.Screen.clearScreen(red);
-            Brain.Screen.drawCircle(50, 50, 50, blue);
+            Brain.Screen.drawCircle(240, 136, 50, blue);
             primary_controller.Screen.clearScreen();
             
             break;
@@ -307,12 +314,14 @@ void displayStatus() {
 
             primary_controller.Screen.clearScreen();
             primary_controller.Screen.print("Eject BLU\n");
-            Brain.Screen.drawCircle(50, 50, 50, red);
+            Brain.Screen.drawCircle(240, 136, 50, red);
             break;
         case OFF:
             Brain.Screen.clearScreen(black);
             Brain.Screen.drawCircle(50, 50, 50, purple);
-            return; 
+            break;
+        
+        return; 
     }
     primary_controller.Screen.setCursor(1, 1);
     secondary_controller.Screen.setCursor(1, 1);
@@ -386,30 +395,31 @@ int vision_sensor_thread() {
 
 // Code block for Pre-Autonomous 
 void pre_auton(void) {
-    Brain.Screen.print("Pre-Autonomous start!");
-    Brain.Screen.newLine();
+    //Brain.Screen.print("Pre-Autonomous start!");
+    //Brain.Screen.newLine();
 
 
     // All activities that occur before the competition starts
-    Brain.Screen.print("Pre-Autonomous complete.");
-    Brain.Screen.newLine();
+    //Brain.Screen.print("Pre-Autonomous complete.");
+    //Brain.Screen.newLine();
 }
 
 // Code block for Autonomous
 void autonomous(void) {
-    Brain.Screen.print("Autonomous start!");
-    Brain.Screen.newLine();
+    //Brain.Screen.print("Autonomous start!");
+    //Brain.Screen.newLine();
     //PathFollowing::driveForward(10, localizer, odometry_constants, 
     //left_motor_group, right_motor_group);
-    /*
+    
     driveForward(1);
     wait(2, sec);
     driveForward(-1);
     wait(2, sec);
+    driveForward(2);
+    wait(2, sec);
     rotateTo(90);
     wait(2, sec);
     driveForward(2);
-    */
 }
 
 // Code block for User Control
@@ -478,10 +488,7 @@ void tank_drive(void){
 }
 
 
-void usercontrol(void) {
-    Brain.Screen.print("User Control start!");
-    Brain.Screen.newLine();
-    
+void usercontrol(void) { 
     // Usercontrol loop
     while(true){
         //bool buttonR1 = primary_controller.ButtonR1.pressing();
@@ -551,13 +558,12 @@ void usercontrol(void) {
                 dual_stick_drive();
                 break;
         }
+
+        this_thread::sleep_for(10);
     }
 }
 
 int main() {
-    Brain.Screen.print("Main start!");
-    Brain.Screen.newLine();
-
     // Set up callbacks for autonomous and driver control periods.
     compete.autonomous(autonomous);
     compete.drivercontrol(usercontrol);
@@ -579,7 +585,4 @@ int main() {
         // Allow other tasks to run
         this_thread::sleep_for(10);
     }
-    
-    Brain.Screen.print("Main complete.");
-    Brain.Screen.newLine();
 }
