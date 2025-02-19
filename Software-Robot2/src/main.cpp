@@ -7,93 +7,8 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-#include <iostream>
-#include "vex.h"
-#include <math.h>
-#include <sstream>
-#include <iomanip>
-
-using namespace vex;
-
-
-// Definitions
-#define TURN_SPEED_RATIO 0.5
-#define BELT_THROW_POSITION 638 // Farthest Number of Degrees from starting position needed to throw ring (No more than 1 revolution around BELT)
-#define BELTRANGE 10 // Margin of error around throw position
-#define BELTSPEED -100 // Speed of belt motor
-
-// PID Defintions
-#define KP 0.01
-#define LR_KP 0.05
-#define WHEELSIZE 2.75    // Inches Diameter
-#define TILEDISTANCE (2 * 12) // 2 feet
-#define MANUAL_OFFSET 1.3
-#define TILEREVOLUTIONS(offset) (TILEDISTANCE / (M_PI * WHEELSIZE)) + offset // Revolutions per Tile (S / (PI)*Diameter = Revolutions )
-#define TIMEOUT_TIME 2000 // Time in milliseconds to wait for a command to complete
-#define MINVOLTAGE 1
-#define MAXVOLTAGE 8
-
-
-// Button Mapping
-#define ACTUATOR_TOGGLE_BUTTON primary_controller.ButtonR1.pressing()
-#define BELT_TOGGLE_BUTTON secondary_controller.ButtonX.pressing()
-#define BELT_A (secondary_controller.ButtonA.pressing())
-#define INTAKE_FORWARD_BUTTON secondary_controller.ButtonR2.pressing()
-#define INTAKE_REVERSE_BUTTON secondary_controller.ButtonR1.pressing()
-#define REVERSE_BELT_BUTTON secondary_controller.ButtonY.pressing()
-#define SWITCH_DRIVE_TANK primary_controller.ButtonUp.pressing()
-#define SWITCH_DRIVE_DUAL primary_controller.ButtonDown.pressing()
-#define SWITCH_COLOR_FILTERING primary_controller.ButtonA.pressing()
-#define HIGHSTAKES_FORWARD_MOTOR_BUTTON secondary_controller.ButtonL2.pressing()
-#define HIGHSTAKES_BACKWARD_MOTOR_BUTTON secondary_controller.ButtonL1.pressing()
-#define BELT_B secondary_controller.Axis2.position()
-#define BELT_C secondary_controller.Axis2.position()
-
-// TODO: BUTTON MAP, TOGGLE BELT ON ONE BUTTON, REVERSE BELT ON ANOTHER BUTTON, INTAKE STAY BACK AND FORTH, TRIGGER FOR ACTUATOR
-
-// Global Constants
-// Make sure to define a motor with the right gear ratio (motor gear color)
-const gearSetting RED_GEAR = ratio36_1; // 100 RPM - high torque & low speed (e.g. lifting arms & moving claws,)
-const gearSetting GREEN_GEAR = ratio18_1; // 200 RPM - standard gear ratio for drivetrain applications 
-const gearSetting BLUE_GEAR = ratio6_1; // 600 RPM - low torque & high speed (e.g.  intake rollers & flywheels))
-
-// A global instance of vex::brain
-vex::brain Brain;
-
-// Global instance of competition
-competition compete;
-// Global instance of controller
-controller primary_controller = controller(primary);
-controller secondary_controller = controller(partner);
-
-// define your global instances of motors and other devices here
-motor left_motor_front = motor(PORT17, BLUE_GEAR, true);
-motor left_motor_mid1 = motor(PORT18, BLUE_GEAR, false);
-motor left_motor_mid2 = motor(PORT19, BLUE_GEAR, true);
-motor left_motor_back = motor(PORT20, BLUE_GEAR, false);
-motor_group left_motor_group = motor_group(left_motor_front, left_motor_mid1, left_motor_mid2, left_motor_back);
-
-motor right_motor_front = motor(PORT7, BLUE_GEAR, true);
-motor right_motor_mid1 = motor(PORT8, BLUE_GEAR, false);
-motor right_motor_mid2 = motor(PORT9, BLUE_GEAR, true);
-motor right_motor_back = motor(PORT10, BLUE_GEAR, false);
-motor_group right_motor_group = motor_group(right_motor_front, right_motor_mid1, right_motor_mid2, right_motor_back);
-
-motor intake_motor = motor(PORT3, GREEN_GEAR, false);
-motor belt_motor = motor(PORT4, BLUE_GEAR, false);
-motor highstake_motor = motor(PORT5, RED_GEAR, false);
-
-digital_out Actuator = digital_out(Brain.ThreeWirePort.A);
-
-enum driveMode{
-    TANK,DUAL_STICK
-};
-driveMode currentDriveMode = DUAL_STICK;
-
-// Global Variables
-volatile bool belt_toggle_state = false;
-volatile bool color_detected = true; // TODO: Set up control to vision sensor
-volatile bool reverse_belt = false;
+#include "main.h"
+#include "belt_control.h"
 
 // Actuator Control
 bool actuatorToggle = false;
@@ -222,60 +137,6 @@ void driveForward(int tiles){
 }
 
 
-void intake_toggle(void){
-    //std::cout<<"Intake Toggle"<<std::endl;
-}
-
-void belt_toggle_on(void){
-    //std::cout<<"Belt Toggle On"<<std::endl;
-    belt_toggle_state = true;
-
-}
-
-void belt_toggle_off(void){
-    //std::cout<<"Belt Toggle Off"<<std::endl;
-    belt_toggle_state = false;
-}
-
-void belt_control(void){
-    while(true){
-        int belt_position = abs((((int)belt_motor.position(vex::rotationUnits::deg)) % BELT_THROW_POSITION));
-        //Brain.Screen.printAt(1, 150, "Belt Position: %6d", belt_position);
-        belt_motor.position(vex::rotationUnits::deg);
-
-       if(color_detected){
-            wait(0.15, sec); // Wait until at peak
-            //std::cout<<"Ejecting Ring!"<<std::endl;
-            
-            belt_motor.stop(vex::brakeType::brake); // Briefly stop
-            wait(0.45, sec);
-            //belt_motor.setVelocity(BELTSPEED, vex::percentUnits::pct);
-            belt_motor.spin(forward);
-            wait(0.7, sec);
-       }
-
-        if(BELT_TOGGLE_BUTTON){
-            belt_toggle_state = !belt_toggle_state;
-            this_thread::sleep_for(250);
-        }
-
-        if(belt_toggle_state){
-            if(reverse_belt)
-                belt_motor.setVelocity(-BELTSPEED, vex::percentUnits::pct);
-            else
-                belt_motor.setVelocity(BELTSPEED, vex::percentUnits::pct);
-            
-            belt_motor.spin(forward);  
-        }
-        else{
-            belt_motor.stop(brake);
-        }
-
-        this_thread::sleep_for(20);
-
-
-    }
-}
 
 // Color Sensor
 vision::signature CUS_BLUE = vision::signature(7, -4767, -3699, -4233, 6899, 8623, 7761, 3.2, 0);
@@ -307,11 +168,9 @@ void displayStatus() {
             Brain.Screen.clearScreen(red);
             Brain.Screen.drawCircle(240, 136, 50, blue);
             primary_controller.Screen.clearScreen();
-            
             break;
         case BLUE:
             Brain.Screen.clearScreen(blue);
-
             primary_controller.Screen.clearScreen();
             primary_controller.Screen.print("Eject BLU\n");
             Brain.Screen.drawCircle(240, 136, 50, red);
