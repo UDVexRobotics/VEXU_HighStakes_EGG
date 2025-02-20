@@ -22,12 +22,6 @@ void actuator_thread(void){
     }
 }
 
-std::string format_decimal_places(double value, int places) {
-    std::stringstream ss;
-    ss << std::fixed << std::setprecision(places) << value;
-    return ss.str();
-}
-
 // PID Control
 double PIDControl(double target, double position){
     return (target - position) * KP;
@@ -135,61 +129,6 @@ void driveForward(int tiles){
     return;
 }
 
-
-
-// Color Sensor
-vision::signature CUS_BLUE = vision::signature(7, -4767, -3699, -4233, 6899, 8623, 7761, 3.2, 0);
-vision::signature CUS_RED = vision::signature(6, 8849, 11299, 10074, -1761, -911, -1336, 1.9, 0);
-
-//vision::code red_blue = vision::code(CUS_RED, CUS_BLUE);
-//vision vSens = vision(PORT20, 50, red_blue);
-vision vSens = vision(PORT20, 50, CUS_RED, CUS_BLUE);
-
-
-
-VisionState currentState = RED; // Start with red vision
-
-
-
-
-
-// Vision Sensor Thread
-int vision_sensor_thread() {
-    //std::cout<<(int)vSens.getBrightness()<<std::endl;
-    vSens.setBrightness((uint8_t) 50);
-    //std::cout<<(int)vSens.getBrightness()<<std::endl;
-    while (true) {
-        // Check if Button A is pressed to toggle vision state
-        if(SWITCH_COLOR_FILTERING) {
-            // Cycle through the states: RED -> BLUE -> OFF -> RED
-            currentState = static_cast<VisionState>((currentState + 1) % 3);
-
-            // Clear previous snapshots when turned off
-            //if (currentState == OFF) vSens.setMode;
-
-            // Wait a short period to prevent multiple toggles
-            this_thread::sleep_for(200);
-        }
-
-        // Take a snapshot if vision is active
-        if (currentState != OFF) vSens.takeSnapshot(currentState == RED ? CUS_RED : CUS_BLUE);
-
-        // Display the current status on the screen
-        //displayStatus(); 
-        //std::cout<<(int)vSens.objectCount<<std::endl;
-        // Check if an object is detected
-        if (vSens.objects[0].exists) {
-            // TODO: Add code to eject ring
-            color_detected = true;
-            this_thread::sleep_for(250);
-            //std::cout<<"Color Detected!"<<std::endl;
-        }
-        else{
-            color_detected = false;
-        }
-        this_thread::sleep_for(50); 
-    }
-}
 
 
 // Code block for Pre-Autonomous 

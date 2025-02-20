@@ -4,8 +4,7 @@
 #include <iostream>
 #include "vex.h"
 #include <math.h>
-#include <sstream>
-#include <iomanip>
+#include "vision.h"
 #include "display.h"
 #include "belt_control.h"
 
@@ -35,7 +34,6 @@ using namespace vex;
 #define REVERSE_BELT_BUTTON secondary_controller.ButtonY.pressing()
 #define SWITCH_DRIVE_TANK primary_controller.ButtonUp.pressing()
 #define SWITCH_DRIVE_DUAL primary_controller.ButtonDown.pressing()
-#define SWITCH_COLOR_FILTERING primary_controller.ButtonA.pressing()
 #define HIGHSTAKES_FORWARD_MOTOR_BUTTON secondary_controller.ButtonL2.pressing()
 #define HIGHSTAKES_BACKWARD_MOTOR_BUTTON secondary_controller.ButtonL1.pressing()
 #define BELT_B secondary_controller.Axis2.position()
@@ -77,6 +75,11 @@ motor highstake_motor = motor(PORT5, RED_GEAR, false);
 
 digital_out Actuator = digital_out(Brain.ThreeWirePort.A);
 
+// Vision Sensor Definitions
+vex::vision::signature CUS_BLUE = vex::vision::signature(7, -4767, -3699, -4233, 6899, 8623, 7761, 3.2, 0);
+vex::vision::signature CUS_RED = vex::vision::signature(6, 8849, 11299, 10074, -1761, -911, -1336, 1.9, 0);
+vision vSens = vision(PORT20, 50, CUS_RED, CUS_BLUE);
+VisionState currentState = RED;
 
 driveMode currentDriveMode = DUAL_STICK;
 

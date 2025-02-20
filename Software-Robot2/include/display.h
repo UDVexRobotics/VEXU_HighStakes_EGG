@@ -2,9 +2,12 @@
 #define DISPLAY_H
 
 #include "vex.h"
+#include "vision.h"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
-enum VisionState { RED, BLUE, OFF};
+
 enum driveMode{ TANK, DUAL_STICK};
 
 extern VisionState currentState;

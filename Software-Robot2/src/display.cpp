@@ -1,5 +1,11 @@
 #include "display.h"
 
+std::string format_decimal_places(double value, int places) {
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(places) << value;
+    return ss.str();
+}
+
 // Function to display the current status on the brain screen
 void displayStatus() {
     while(true){
