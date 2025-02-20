@@ -17,7 +17,7 @@ void belt_toggle_off(void){
 
 void belt_control(void){
     while(true){
-        int belt_position = abs((((int)belt_motor.position(vex::rotationUnits::deg)) % BELT_THROW_POSITION));
+        //int belt_position = abs((((int)belt_motor.position(vex::rotationUnits::deg)) % BELT_THROW_POSITION));
         //Brain.Screen.printAt(1, 150, "Belt Position: %6d", belt_position);
         belt_motor.position(vex::rotationUnits::deg);
 

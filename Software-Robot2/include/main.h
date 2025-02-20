@@ -7,6 +7,7 @@
 #include "vision.h"
 #include "display.h"
 #include "belt_control.h"
+#include "driveControl.h"
 
 using namespace vex;
 

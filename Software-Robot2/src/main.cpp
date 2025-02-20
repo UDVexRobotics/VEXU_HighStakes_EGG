@@ -161,80 +161,9 @@ void autonomous(void) {
 }
 
 // Code block for User Control
-
-void dual_stick_drive(void){
-
-    // Controls for Up-Down and Left-Right movement
-    float leftStick = (float)(primary_controller.Axis3.position() / 100.0);             // Vertical Movement
-    float rightStick = primary_controller.Axis1.position() / (float)-100.0;            // Horizontal Movement
-   
-    
-    // Motor speed percentage based on cubed function
-    float ySpeed = pow(leftStick, 3);
-    float xSpeed = pow(rightStick /*TURN_SPEED_RATIO*/, 3);
-
-    //if(controller.buttonL2.pressing()):
-        //xSpeed = (rightAxis_LR * SHIFT_TURN_SPEED_RATIO) ** 3
-
-    
-    if(fabs(ySpeed) > 0.05 or fabs(xSpeed) > 0.05){
-        //printf("Left Stick: %f, Right Stick: %f\n", ySpeed, xSpeed);
-
-        //Set the velocity depending on the axis position
-        left_motor_group.setVelocity((ySpeed + xSpeed) * 100,vex::percentUnits::pct);
-        right_motor_group.setVelocity((ySpeed - xSpeed) * 100,vex::percentUnits::pct); 
-
-        left_motor_group.spin(forward);
-        right_motor_group.spin(forward);
-
-    }
-    else {
-        left_motor_group.stop(coast);
-        right_motor_group.stop(coast);
-    }
-
-    return;
-}
-
-void tank_drive(void){
-    // Controls for Up-Down and Left-Right movement
-    float rightStick = (primary_controller.Axis3.position() / (float)100.0);             // Vertical Movement
-    float leftStick = (primary_controller.Axis2.position() / (float)100.0);            // Horizontal Movement
-   
-    // Motor speed percentage based on cubed function
-    float leftSpeed = pow(leftStick, 3);
-    float rightSpeed = pow(rightStick, 3);
-
-    if(fabs(leftSpeed) > 0.05){
-        //Set the velocity depending on the axis position
-        left_motor_group.setVelocity(leftSpeed * 100,vex::percentUnits::pct);
-        left_motor_group.spin(forward);
-    }
-    else{
-        left_motor_group.stop(coast);
-    }
-
-    if(fabs(rightSpeed) > 0.05){
-        right_motor_group.setVelocity(rightSpeed * 100,vex::percentUnits::pct); 
-        right_motor_group.spin(forward);
-    }
-    else{
-        right_motor_group.stop(coast);
-
-    }  
-
-}
-
-
 void usercontrol(void) { 
     // Usercontrol loop
     while(true){
-        //bool buttonR1 = primary_controller.ButtonR1.pressing();
-        //bool buttonR2 = primary_controller.ButtonR2.pressing();
-        //bool buttonL1 = primary_controller.ButtonL1.pressing();
-        //bool buttonL2 = primary_controller.ButtonL2.pressing();
-        //reverse_belt = REVERSE_BELT_BUTTON;
-       
         if(INTAKE_FORWARD_BUTTON && !INTAKE_REVERSE_BUTTON){
             intake_motor.setVelocity(-100, vex::percentUnits::pct);
             intake_motor.spin(forward);
