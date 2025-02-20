@@ -1,5 +1,5 @@
-#ifndef DRIVECONTROL_H
-#define DRIVECONTROL_H
+#ifndef DRIVE_CONTROL_H
+#define DRIVE_CONTROL_H
 
 #include "vex.h"
 
@@ -12,4 +12,4 @@ extern vex::motor_group right_motor_group;
 void dual_stick_drive(void);
 void tank_drive(void);
 
-#endif // DRIVECONTROL_H
+#endif // DRIVE_CONTROL_H

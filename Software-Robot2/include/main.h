@@ -7,7 +7,8 @@
 #include "vision.h"
 #include "display.h"
 #include "belt_control.h"
-#include "driveControl.h"
+#include "drive_control.h"
+#include "auto_control.h"
 
 using namespace vex;
 
@@ -15,16 +16,7 @@ using namespace vex;
 // Definitions
 #define TURN_SPEED_RATIO 0.5
 
-// PID Defintions
-#define KP 0.01
-#define LR_KP 0.05
-#define WHEELSIZE 2.75    // Inches Diameter
-#define TILEDISTANCE (2 * 12) // 2 feet
-#define MANUAL_OFFSET 1.3
-#define TILEREVOLUTIONS(offset) (TILEDISTANCE / (M_PI * WHEELSIZE)) + offset // Revolutions per Tile (S / (PI)*Diameter = Revolutions )
-#define TIMEOUT_TIME 2000 // Time in milliseconds to wait for a command to complete
-#define MINVOLTAGE 1
-#define MAXVOLTAGE 8
+
 
 
 // Button Mapping
@@ -37,7 +29,7 @@ using namespace vex;
 #define SWITCH_DRIVE_DUAL primary_controller.ButtonDown.pressing()
 #define HIGHSTAKES_FORWARD_MOTOR_BUTTON secondary_controller.ButtonL2.pressing()
 #define HIGHSTAKES_BACKWARD_MOTOR_BUTTON secondary_controller.ButtonL1.pressing()
-#define BELT_B secondary_controller.Axis2.position()
+#define BELT_CONTROL secondary_controller.Axis2.position()
 #define BELT_C secondary_controller.Axis2.position()
 
 // TODO: BUTTON MAP, TOGGLE BELT ON ONE BUTTON, REVERSE BELT ON ANOTHER BUTTON, INTAKE STAY BACK AND FORTH, TRIGGER FOR ACTUATOR
