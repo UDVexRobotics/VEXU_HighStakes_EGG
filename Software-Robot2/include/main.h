@@ -6,6 +6,8 @@
 #include <math.h>
 #include <sstream>
 #include <iomanip>
+#include "display.h"
+#include "belt_control.h"
 
 using namespace vex;
 
@@ -75,9 +77,7 @@ motor highstake_motor = motor(PORT5, RED_GEAR, false);
 
 digital_out Actuator = digital_out(Brain.ThreeWirePort.A);
 
-enum driveMode{
-    TANK,DUAL_STICK
-};
+
 driveMode currentDriveMode = DUAL_STICK;
 
 // Global Variables
