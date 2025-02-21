@@ -9,7 +9,6 @@ std::string format_decimal_places(double value, int places) {
 // Function to display the current status on the brain screen
 void displayStatus() {
     while(true){
-        //Brain.Screen.clearScreen();
         primary_controller.Screen.clearScreen();
         secondary_controller.Screen.clearScreen();
 

@@ -41,15 +41,16 @@ void autonomous(void) {
     //PathFollowing::driveForward(10, localizer, odometry_constants, 
     //left_motor_group, right_motor_group);
     
-    driveForward(1);
-    wait(2, sec);
-    driveForward(-1);
-    wait(2, sec);
-    driveForward(2);
-    wait(2, sec);
+    // driveForward(1);
+    // wait(2, sec);
+    // driveForward(-1);
+    // wait(2, sec);
+    // driveForward(2);
+    // wait(2, sec);
+
     rotateTo(90);
     wait(2, sec);
-    driveForward(2);
+    rotateTo(-90);
 }
 
 // Code block for User Control

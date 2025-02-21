@@ -1,5 +1,5 @@
 #include "auto_control.h"
-
+#include <iostream>
 // PID Control
 double PIDControl(double target, double position){
     return (target - position) * KP;
@@ -12,18 +12,20 @@ void rotateTo(double target) {
     double magnitude = fabs(target);
     double avg_pos = 0;
     
-    left_motor_group.setPosition(0, vex::rotationUnits::deg);
-    right_motor_group.setPosition(0, vex::rotationUnits::deg);
+    left_motor_group.setPosition(0, vex::degrees);
+    right_motor_group.setPosition(0, vex::degrees);
+
     timer.reset();
     double start_time = timer.value();
 
     // PID Loop
     while (!(avg_pos <= target && avg_pos >= target - 1)) {
-        double left_pos = abs(left_motor_group.position(vex::rotationUnits::deg));
-        double right_pos = abs(right_motor_group.position(vex::rotationUnits::deg));
-        avg_pos = (left_pos + right_pos) / 2;
-        double drive = PIDControl(target, avg_pos);
         
+        double left_pos = fabs(left_motor_group.position(vex::degrees));
+        double right_pos = fabs(right_motor_group.position(vex::degrees));
+        avg_pos = (left_pos + right_pos) / 2.0;
+        double drive = PIDControl(target, avg_pos);
+        std::cout<<"L: "<<left_motor_group.position(vex::degrees)<<" R: "<<right_pos<<" t: "<<avg_pos<<std::endl;
         // Clamp voltage to min and max 
         drive = (drive < MINVOLTAGE && drive > 0) ? MINVOLTAGE : drive;
         drive = (drive > -MINVOLTAGE && drive < 0) ? -MINVOLTAGE : drive;
@@ -36,6 +38,7 @@ void rotateTo(double target) {
         
         double left_drive = drive;
         double right_drive = drive;
+
         if (left_pos > right_pos) {
             left_drive += (right_pos - left_pos) * LR_KP;
         } else {
@@ -43,11 +46,11 @@ void rotateTo(double target) {
         }
 
         if (is_negative) { 
-            left_motor_group.spin(vex::reverse, left_drive, vex::voltageUnits::volt);
+            left_motor_group.spin(vex::forward, -left_drive, vex::voltageUnits::volt); // Reversed
             right_motor_group.spin(vex::forward, right_drive, vex::voltageUnits::volt);
         } else {
             left_motor_group.spin(vex::forward, left_drive, vex::voltageUnits::volt);
-            right_motor_group.spin(vex::reverse, right_drive, vex::voltageUnits::volt);
+            right_motor_group.spin(vex::forward, -right_drive, vex::voltageUnits::volt); // Reversed
         } 
         if ((timer.value() - start_time) > TIMEOUT_TIME) {
             break;
