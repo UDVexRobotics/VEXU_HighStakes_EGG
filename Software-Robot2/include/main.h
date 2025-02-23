@@ -21,16 +21,14 @@ using namespace vex;
 
 // Button Mapping
 #define ACTUATOR_TOGGLE_BUTTON primary_controller.ButtonR1.pressing()
-#define BELT_A (secondary_controller.ButtonA.pressing())
-#define INTAKE_FORWARD_BUTTON secondary_controller.ButtonR2.pressing()
-#define INTAKE_REVERSE_BUTTON secondary_controller.ButtonR1.pressing()
+#define INTAKE_FORWARD_BUTTON secondary_controller.ButtonR1.pressing()
+#define INTAKE_REVERSE_BUTTON secondary_controller.ButtonR2.pressing()
 #define REVERSE_BELT_BUTTON secondary_controller.ButtonY.pressing()
 #define SWITCH_DRIVE_TANK primary_controller.ButtonUp.pressing()
 #define SWITCH_DRIVE_DUAL primary_controller.ButtonDown.pressing()
 #define HIGHSTAKES_FORWARD_MOTOR_BUTTON secondary_controller.ButtonL2.pressing()
 #define HIGHSTAKES_BACKWARD_MOTOR_BUTTON secondary_controller.ButtonL1.pressing()
 #define BELT_CONTROL secondary_controller.Axis2.position()
-#define BELT_C secondary_controller.Axis2.position()
 
 // TODO: BUTTON MAP, TOGGLE BELT ON ONE BUTTON, REVERSE BELT ON ANOTHER BUTTON, INTAKE STAY BACK AND FORTH, TRIGGER FOR ACTUATOR
 

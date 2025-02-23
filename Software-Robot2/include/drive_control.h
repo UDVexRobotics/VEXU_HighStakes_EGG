@@ -8,7 +8,7 @@ extern vex::controller primary_controller;
 extern vex::motor_group left_motor_group;
 extern vex::motor_group right_motor_group;
 
-#define TURN_SPEED_RATIO 0.5
+#define TURN_SPEED_RATIO 0.8
 
 // Function prototypes
 void dual_stick_drive(void);
