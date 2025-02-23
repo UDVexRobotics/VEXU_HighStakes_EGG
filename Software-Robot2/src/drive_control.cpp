@@ -9,7 +9,7 @@ void dual_stick_drive(void){
     
     // Motor speed percentage based on cubed function
     float ySpeed = pow(leftStick, 3);
-    float xSpeed = pow(rightStick /*TURN_SPEED_RATIO*/, 3);
+    float xSpeed = pow(rightStick * TURN_SPEED_RATIO, 3);
 
     //if(controller.buttonL2.pressing()):
         //xSpeed = (rightAxis_LR * SHIFT_TURN_SPEED_RATIO) ** 3

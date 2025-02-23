@@ -13,6 +13,7 @@
 #define TIMEOUT_TIME 2000 // Time in milliseconds to wait for a command to complete
 #define MINVOLTAGE 1
 #define MAXVOLTAGE 8
+#define ROTATE90 600
 
 // PID Control
 double PIDControl(double target, double position);
@@ -22,6 +23,14 @@ void rotateTo(double target);
 void driveForward(int tiles);
 
 // External declarations
+extern vex::motor left_motor_front;
+extern vex::motor left_motor_mid1;
+extern vex::motor left_motor_mid2;
+extern vex::motor left_motor_back;
+extern vex::motor right_motor_front;
+extern vex::motor right_motor_mid1;
+extern vex::motor right_motor_mid2;
+extern vex::motor right_motor_back;
 extern vex::motor_group left_motor_group;
 extern vex::motor_group right_motor_group;
 extern vex::brain Brain;

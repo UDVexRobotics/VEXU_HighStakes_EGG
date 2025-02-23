@@ -41,16 +41,16 @@ void autonomous(void) {
     //PathFollowing::driveForward(10, localizer, odometry_constants, 
     //left_motor_group, right_motor_group);
     
-    // driveForward(1);
-    // wait(2, sec);
+    driveForward(1);
+    wait(2, sec);
     // driveForward(-1);
     // wait(2, sec);
     // driveForward(2);
     // wait(2, sec);
 
-    rotateTo(90);
+    rotateTo(ROTATE90);
     wait(2, sec);
-    rotateTo(-90);
+    rotateTo(-ROTATE90);
 }
 
 // Code block for User Control
@@ -123,6 +123,14 @@ void usercontrol(void) {
     }
 }
 
+void coutLog(){
+
+    while(true){
+        //std::cout<<"Left: "<<left_motor_group.position(vex::degrees)<<" Right: "<<right_motor_group.position(vex::degrees)<<std::endl;
+        this_thread::sleep_for(250);
+    }
+}
+
 int main() {
     // Set up callbacks for autonomous and driver control periods.
     compete.autonomous(autonomous);
@@ -136,6 +144,7 @@ int main() {
     thread actuatorThread = thread(actuator_thread);
     //thread beltThread = thread(belt_control);
     thread visionThread = thread(vision_sensor_thread);
+    thread logThread = thread(coutLog);
 
     // Run the pre-autonomous function.
     pre_auton();
