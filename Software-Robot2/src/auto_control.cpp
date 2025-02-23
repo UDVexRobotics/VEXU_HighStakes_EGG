@@ -6,21 +6,19 @@ double PIDControl(double target, double position){
 }
 
 void rotateTo(double target) {
-    vex::timer timer = vex::timer();
-
-    bool is_negative = (target < 0);
+    bool is_negative = (target < 0);  // Check if the target is negative (counter-clockwise vs clockwise)
     target = fabs(target);
     double avg_pos = 0;
     
     left_motor_group.setPosition(0, vex::degrees);
     right_motor_group.setPosition(0, vex::degrees);
 
-    timer.reset();
-    double start_time = timer.value();
+    uint32_t start_time = Brain.Timer.time();
 
     // PID Loop
     while (!(target+1 > avg_pos && avg_pos > target-1)) {
-        vex::this_thread::sleep_for(20);
+        vex::this_thread::sleep_for(20); // Sleep for 20 milliseconds
+
         double left_pos = fabs(left_motor_group.position(vex::degrees));
         double right_pos = fabs(right_motor_group.position(vex::degrees));
         avg_pos = (left_pos + right_pos) / 2.0;
@@ -37,12 +35,14 @@ void rotateTo(double target) {
         double left_drive = drive;
         double right_drive = drive;
 
+        // Correct the drive values between the left and right motors (Fix Off-balanced drive)
         if (left_pos > right_pos) {
             left_drive += (right_pos - left_pos) * LR_KP;
         } else {
             right_drive += (left_pos - right_pos) * LR_KP;
         }
-        //std::cout<<"Left: "<<left_drive<<" Right: "<<right_drive<<std::endl;
+        
+        // If the target is negative, turn counter-clockwise
         if (is_negative) { 
             left_motor_group.spin(vex::forward, -left_drive, vex::voltageUnits::volt); // Reversed
             right_motor_group.spin(vex::forward, right_drive, vex::voltageUnits::volt);
@@ -63,12 +63,13 @@ void rotateTo(double target) {
 }
 
 void driveForward(int tiles){
-    int t = (int)(tiles * (TILEREVOLUTIONS(MANUAL_OFFSET)) * 360.0);
+    int t = (int)(tiles * (TILEREVOLUTIONS(MANUAL_OFFSET)) * 360.0); // Convert tiles to degrees
     //std::cout<<((TILEREVOLUTIONS(MANUAL_OFFSET)) * 360.0)<<std::endl;
     //std::cout<<TILEREVOLUTIONS(MANUAL_OFFSET)<<std::endl;
     //std::cout<<"Target: "<<t<<std::endl;
     float avg_position = 0;
 
+    // Reset the motor positions
     left_motor_group.setPosition(0, vex::degrees);
     right_motor_group.setPosition(0, vex::degrees);
 
@@ -87,11 +88,10 @@ void driveForward(int tiles){
         drive = (drive < MINVOLTAGE && drive > 0) ? MINVOLTAGE : drive;
         drive = (drive > -MINVOLTAGE && drive < 0) ? -MINVOLTAGE : drive;
 
-        if (drive > MAXVOLTAGE) {
-            drive = MAXVOLTAGE;
-        } else if (drive < -MAXVOLTAGE) {
-            drive = -MAXVOLTAGE;
-        }
+        // Don't allow drive to go above maximum voltage (speed)
+        drive = (drive > MAXVOLTAGE) ? MAXVOLTAGE : drive;
+        drive = (drive < -MAXVOLTAGE) ? -MAXVOLTAGE : drive;
+
 
         // P-Control between left and right motors
         double left_voltage_drive = drive;
