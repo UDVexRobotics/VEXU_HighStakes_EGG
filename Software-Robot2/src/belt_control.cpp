@@ -15,6 +15,37 @@ void belt_toggle_off(void){
     belt_toggle_state = false;
 }
 
+void auto_belt_thread(void){
+    belt_motor.setVelocity(-100, vex::percentUnits::pct);
+    belt_motor.spin(forward);
+    double lastPosition = belt_motor.position(vex::rotationUnits::deg);
+    
+    while(true){
+        this_thread::sleep_for(250);
+        double position = belt_motor.position(vex::rotationUnits::deg);
+        
+        // Prevent Jams
+        if(position > (lastPosition - 5) && position < (lastPosition + 5)){
+            // Spit out blockage
+            belt_motor.setVelocity(100, vex::percentUnits::pct);
+            intake_motor.setVelocity(100, vex::percentUnits::pct);
+            intake_motor.spin(forward);
+            belt_motor.spin(forward);
+
+            // Wait for blockage to clear
+            this_thread::sleep_for(400);
+
+            // Resume Intake
+            intake_motor.setVelocity(-100, vex::percentUnits::pct);
+            intake_motor.spin(forward);
+            belt_motor.setVelocity(-100, vex::percentUnits::pct);
+            belt_motor.spin(forward);
+        }
+
+        lastPosition = position;
+    }
+}
+
 void belt_control(void){
     while(true){
         //int belt_position = abs((((int)belt_motor.position(vex::rotationUnits::deg)) % BELT_THROW_POSITION));

@@ -10,7 +10,7 @@
 #include "main.h"
 
 // Actuator Control
-bool actuatorToggle = false;
+volatile bool actuatorToggle = false;
 void actuator_thread(void){
     while(true){
         if(ACTUATOR_TOGGLE_BUTTON){
@@ -22,16 +22,71 @@ void actuator_thread(void){
     }
 }
 
+int delayed_actuator_toggle(void *params){
+    uint32_t* delay = static_cast<uint32_t*>(params);
+    this_thread::sleep_for(*delay);
+    (actuatorToggle) ? Actuator.set(false) : Actuator.set(true);
+    actuatorToggle = !actuatorToggle;
+    return 0;
+}
+
 
 // Code block for Pre-Autonomous 
-void pre_auton(void) {
-    //Brain.Screen.print("Pre-Autonomous start!");
-    //Brain.Screen.newLine();
+void pre_auton(void) { 
+    std::cout<<"Pre-Autonomous start!"<<std::endl;
+    
+}
+
+void skills_auton(void){
+    highstake_motor.setVelocity(100, vex::percentUnits::pct);
+    highstake_motor.spin(forward);
+    belt_motor.setVelocity(15, vex::percentUnits::pct);
+    belt_motor.spin(forward);   
+    this_thread::sleep_for(700);
+    //belt_motor.stop(coast);
+    highstake_motor.stop(brake);
+
+    driveForward(-1.25);
+    rotateTo(-ROTATE45);
+    //std::thread(delayed_actuator_toggle,(1000));
+    uint32_t delay = 500;
+    task delayTask(delayed_actuator_toggle, (void *)&delay); // Grab Mobile Goal
+    driveForward(-1.0);
+    rotateTo((ROTATE45/10) + ROTATE45);
+    
+    // Turn on Intake
+    intake_motor.setVelocity(-100, vex::percentUnits::pct);
+    intake_motor.spin(forward);
+
+    vex::thread auto_belt = thread(auto_belt_thread);
+    
+
+    // Grab Ring One
+    driveForward(0.65); // Grab Ring One
+    rotateTo(-ROTATE90 - ROTATE45); // Turn Around
+    driveForward(1); // Grab Ring 2 & approach next rings
+
+    rotateTo(-ROTATE45/2); // closer towards rings
+    driveForward(1); // Grab Ring 3
+    driveForward(-0.5); // Back up
+    rotateTo(ROTATE45/2); // Turn Around
+
+    driveForward(1); // Grab Ring 4
+    this_thread::sleep_for(500);
+    driveForward(-0.5); // Back up
+    rotateTo(-ROTATE90); // Turn Around
+
+    driveForward(1); // Grab Ring 5
+    this_thread::sleep_for(500);
+    driveForward(-2.5); // Back up
+    rotateTo(ROTATE45); // Turn Around
+    rotateTo(ROTATE180);
+    
+    driveForward(2); // Grab Ring 6
+    
 
 
-    // All activities that occur before the competition starts
-    //Brain.Screen.print("Pre-Autonomous complete.");
-    //Brain.Screen.newLine();
+
 }
 
 // Code block for Autonomous
@@ -40,17 +95,7 @@ void autonomous(void) {
     //Brain.Screen.newLine();
     //PathFollowing::driveForward(10, localizer, odometry_constants, 
     //left_motor_group, right_motor_group);
-    
-    //driveForward(1);
-    //wait(2, sec);
-    // driveForward(-1);
-    // wait(2, sec);
-    // driveForward(2);
-    // wait(2, sec);
-
-    rotateTo(ROTATE90);
-    wait(2, sec);
-    rotateTo(-ROTATE90);
+    skills_auton();
 }
 
 // Code block for User Control

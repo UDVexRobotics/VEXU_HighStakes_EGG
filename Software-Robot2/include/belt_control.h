@@ -12,6 +12,7 @@ using namespace vex;
 
 extern volatile bool belt_toggle_state;
 extern vex::motor belt_motor;
+extern vex::motor intake_motor;
 extern volatile bool color_detected;
 extern volatile bool reverse_belt;
 extern vex::controller secondary_controller;
@@ -22,5 +23,6 @@ void intake_toggle(void);
 void belt_toggle_on(void);
 void belt_toggle_off(void);
 void belt_control(void);
+void auto_belt_thread(void);
 
 #endif // BELT_CONTROL_H
