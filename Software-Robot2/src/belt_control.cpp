@@ -25,19 +25,19 @@ void auto_belt_thread(void){
         double position = belt_motor.position(vex::rotationUnits::deg);
         
         // Prevent Jams
-        if(position > (lastPosition - 5) && position < (lastPosition + 5)){
+        if(position > (lastPosition - 2) && position < (lastPosition + 2)){
             // Spit out blockage
             belt_motor.setVelocity(100, vex::percentUnits::pct);
-            intake_motor.setVelocity(100, vex::percentUnits::pct);
-            intake_motor.spin(forward);
+            //intake_motor.setVelocity(100, vex::percentUnits::pct);
+            //intake_motor.spin(forward);
             belt_motor.spin(forward);
 
             // Wait for blockage to clear
-            this_thread::sleep_for(400);
+            this_thread::sleep_for(300);
 
             // Resume Intake
-            intake_motor.setVelocity(-100, vex::percentUnits::pct);
-            intake_motor.spin(forward);
+            //intake_motor.setVelocity(-100, vex::percentUnits::pct);
+            //intake_motor.spin(forward);
             belt_motor.setVelocity(-100, vex::percentUnits::pct);
             belt_motor.spin(forward);
         }

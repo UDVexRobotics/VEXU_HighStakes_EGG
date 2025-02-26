@@ -44,7 +44,7 @@ void skills_auton(void){
     belt_motor.spin(forward);   
     this_thread::sleep_for(700);
     //belt_motor.stop(coast);
-    highstake_motor.stop(brake);
+    highstake_motor.stop(hold);
 
     driveForward(-1.25);
     rotateTo(-ROTATE45);
@@ -62,21 +62,21 @@ void skills_auton(void){
     
 
     // Grab Ring One
-    driveForward(0.65); // Grab Ring One
+    driveForward(0.8); // Grab Ring One
     rotateTo(-ROTATE90 - ROTATE45); // Turn Around
     driveForward(1); // Grab Ring 2 & approach next rings
 
     rotateTo(-ROTATE45/2); // closer towards rings
-    driveForward(1); // Grab Ring 3
+    driveForward(0.75); // Grab Ring 3
     driveForward(-0.5); // Back up
     rotateTo(ROTATE45/2); // Turn Around
 
-    driveForward(1); // Grab Ring 4
+    driveForward(0.75); // Grab Ring 4
     this_thread::sleep_for(500);
     driveForward(-0.5); // Back up
     rotateTo(-ROTATE90); // Turn Around
 
-    driveForward(1); // Grab Ring 5
+    driveForward(0.75); // Grab Ring 5
     this_thread::sleep_for(500);
     driveForward(-2.5); // Back up
     rotateTo(ROTATE45); // Turn Around
@@ -101,6 +101,8 @@ void autonomous(void) {
 // Code block for User Control
 void usercontrol(void) { 
     // Usercontrol loop
+    highstake_motor.setMaxTorque(100, percentUnits::pct);
+    belt_motor.setMaxTorque(100, percentUnits::pct);
     while(true){
         if(INTAKE_FORWARD_BUTTON && !INTAKE_REVERSE_BUTTON){
             intake_motor.setVelocity(-100, vex::percentUnits::pct);
@@ -123,9 +125,14 @@ void usercontrol(void) {
             highstake_motor.setVelocity(-100, vex::percentUnits::pct);
             highstake_motor.spin(forward);
         }
-        else{
-            highstake_motor.stop(brake);
+        else if(HIGHSTAKES_POSTION_BUTTON){
+            highstake_motor.spinToPosition(-49.6, degrees);
         }
+        else{
+            highstake_motor.stop(hold);
+        }
+
+        
 
         /*
         if(BELT_A){
@@ -172,6 +179,7 @@ void coutLog(){
 
     while(true){
         //std::cout<<"Left: "<<left_motor_group.position(vex::degrees)<<" Right: "<<right_motor_group.position(vex::degrees)<<std::endl;
+        std::cout<<"High Stakes"<<highstake_motor.position(vex::degrees)<<std::endl;
         this_thread::sleep_for(250);
     }
 }

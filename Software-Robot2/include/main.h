@@ -29,6 +29,7 @@ using namespace vex;
 #define HIGHSTAKES_FORWARD_MOTOR_BUTTON secondary_controller.ButtonL2.pressing()
 #define HIGHSTAKES_BACKWARD_MOTOR_BUTTON secondary_controller.ButtonL1.pressing()
 #define BELT_CONTROL secondary_controller.Axis2.position()
+#define HIGHSTAKES_POSTION_BUTTON secondary_controller.ButtonA.pressing()
 
 // TODO: BUTTON MAP, TOGGLE BELT ON ONE BUTTON, REVERSE BELT ON ANOTHER BUTTON, INTAKE STAY BACK AND FORTH, TRIGGER FOR ACTUATOR
 
