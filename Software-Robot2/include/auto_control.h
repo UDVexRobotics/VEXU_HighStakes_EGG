@@ -14,7 +14,7 @@
 #define TILEREVOLUTIONS(offset) (TILEDISTANCE / (M_PI * WHEELSIZE)) + offset // Revolutions per Tile (S / (PI)*Diameter = Revolutions )
 #define TIMEOUT_TIME 2500 // Time in milliseconds to wait for a command to complete
 #define MINVOLTAGE 0.25
-#define MAXVOLTAGE 8
+#define MAXVOLTAGE 6
 #define ROTATE90 600
 #define ROTATE45 ROTATE90 / 2.0
 #define ROTATE180 ROTATE90 * 2.0

@@ -38,6 +38,7 @@ void pre_auton(void) {
 }
 
 void skills_auton(void){
+    // Freeing intake and expanding
     highstake_motor.setVelocity(100, vex::percentUnits::pct);
     highstake_motor.spin(forward);
     belt_motor.setVelocity(15, vex::percentUnits::pct);
@@ -46,6 +47,7 @@ void skills_auton(void){
     //belt_motor.stop(coast);
     highstake_motor.stop(hold);
 
+    // Going for Mobile Goal
     driveForward(-1.25);
     rotateTo(-ROTATE45);
     //std::thread(delayed_actuator_toggle,(1000));
@@ -64,17 +66,18 @@ void skills_auton(void){
     // Grab Ring One
     driveForward(0.8); // Grab Ring One
     rotateTo(-ROTATE90 - ROTATE45); // Turn Around
-    driveForward(1); // Grab Ring 2 & approach next rings
+    driveForward(1); // Grab Ring 2 & approach group of rings in mid
 
-    rotateTo(-ROTATE45/2); // closer towards rings
+    rotateTo(-ROTATE45/3); // closer towards rings
     driveForward(0.75); // Grab Ring 3
-    driveForward(-0.5); // Back up
-    rotateTo(ROTATE45/2); // Turn Around
-
-    driveForward(0.75); // Grab Ring 4
     this_thread::sleep_for(500);
     driveForward(-0.5); // Back up
-    rotateTo(-ROTATE90); // Turn Around
+    rotateTo(ROTATE45/4); // Turn Around
+
+    driveForward(1); // Grab Ring 4
+    this_thread::sleep_for(500);
+    driveForward(-0.5); // Back up
+    rotateTo(-ROTATE45/2); // Turn Around
 
     driveForward(0.75); // Grab Ring 5
     this_thread::sleep_for(500);
