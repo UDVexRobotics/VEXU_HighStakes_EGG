@@ -30,6 +30,7 @@ using namespace vex;
 #define HIGHSTAKES_BACKWARD_MOTOR_BUTTON secondary_controller.ButtonL1.pressing()
 #define BELT_CONTROL secondary_controller.Axis2.position()
 #define HIGHSTAKES_POSTION_BUTTON secondary_controller.ButtonA.pressing()
+#define HIGHSTAKES_JOYSTICK secondary_controller.Axis3.position()
 
 // TODO: BUTTON MAP, TOGGLE BELT ON ONE BUTTON, REVERSE BELT ON ANOTHER BUTTON, INTAKE STAY BACK AND FORTH, TRIGGER FOR ACTUATOR
 
@@ -39,6 +40,7 @@ const gearSetting RED_GEAR = ratio36_1; // 100 RPM - high torque & low speed (e.
 const gearSetting GREEN_GEAR = ratio18_1; // 200 RPM - standard gear ratio for drivetrain applications 
 const gearSetting BLUE_GEAR = ratio6_1; // 600 RPM - low torque & high speed (e.g.  intake rollers & flywheels))
 
+const float HIGHSTAKES_POSITION = -49.6;
 // A global instance of vex::brain
 vex::brain Brain;
 

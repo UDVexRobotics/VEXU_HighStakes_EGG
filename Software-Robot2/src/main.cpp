@@ -52,8 +52,8 @@ void skills_auton(void){
     rotateTo(-ROTATE45);
     //std::thread(delayed_actuator_toggle,(1000));
     uint32_t delay = 500;
-    task delayTask(delayed_actuator_toggle, (void *)&delay); // Grab Mobile Goal
-    driveForward(-1.0);
+    task delayTask1(delayed_actuator_toggle, (void *)&delay); // Grab Mobile Goal
+    driveForward(-0.8);
     rotateTo((ROTATE45/10) + ROTATE45);
     
     // Turn on Intake
@@ -65,27 +65,40 @@ void skills_auton(void){
 
     // Grab Ring One
     driveForward(0.8); // Grab Ring One
-    rotateTo(-ROTATE90 - ROTATE45); // Turn Around
+    rotateTo(-ROTATE90 - (ROTATE45/1.5)); // Turn Around
     driveForward(1); // Grab Ring 2 & approach group of rings in mid
 
-    rotateTo(-ROTATE45/3); // closer towards rings
-    driveForward(0.75); // Grab Ring 3
-    this_thread::sleep_for(500);
-    driveForward(-0.5); // Back up
+    rotateTo(-ROTATE45/2.25); // closer towards rings
+    driveForward(1.4); // Grab Ring 3 (at big group)
+    this_thread::sleep_for(750);
+    driveForward(-0.7); // Back up
     rotateTo(ROTATE45/4); // Turn Around
 
     driveForward(1); // Grab Ring 4
-    this_thread::sleep_for(500);
-    driveForward(-0.5); // Back up
+    this_thread::sleep_for(750);
+    driveForward(-0.75); // Back up
     rotateTo(-ROTATE45/2); // Turn Around
 
     driveForward(0.75); // Grab Ring 5
-    this_thread::sleep_for(500);
+    this_thread::sleep_for(750);
     driveForward(-2.5); // Back up
-    rotateTo(ROTATE45); // Turn Around
+    rotateTo(-ROTATE45/3); // Readjust
+
+    // Turn towards ring 6 (corner)
     rotateTo(ROTATE180);
+    driveForward(2); // Go to ring 6
+    this_thread::sleep_for(250);
+    driveForward(-0.75); // Back up
+    rotateTo(ROTATE180); // Turn Around
+    task delayTask2(delayed_actuator_toggle, (void *)&delay);  // Drop Mobile Goal
+    driveForward(-1); // Go to deposit spot
+    this_thread::sleep_for(250);
+    driveForward(1); // drive away from mobile goal
+
+    rotateTo(ROTATE180); // Turn climb
+    highstake_motor.spinToPosition(-270, degrees); // Climb
+    driveForward(-2);
     
-    driveForward(2); // Grab Ring 6
     
 
 
@@ -120,17 +133,30 @@ void usercontrol(void) {
         }
 
         //TODO: MAY NEED TO BE REVERSED IDK MANE
-        if(HIGHSTAKES_FORWARD_MOTOR_BUTTON){
-            highstake_motor.setVelocity(100, vex::percentUnits::pct);
-            highstake_motor.spin(forward);
-        }
-        else if(HIGHSTAKES_BACKWARD_MOTOR_BUTTON){
-            highstake_motor.setVelocity(-100, vex::percentUnits::pct);
+        // if(HIGHSTAKES_FORWARD_MOTOR_BUTTON){
+        //     highstake_motor.setVelocity(100, vex::percentUnits::pct);
+        //     highstake_motor.spin(forward);
+        // }
+        // else if(HIGHSTAKES_BACKWARD_MOTOR_BUTTON){
+        //     highstake_motor.setVelocity(-100, vex::percentUnits::pct);
+        //     highstake_motor.spin(forward);
+        // }
+        // else if(HIGHSTAKES_POSTION_BUTTON){
+        //     highstake_motor.spinToPosition(-49.6, degrees);
+        // }
+        // else{
+        //     highstake_motor.stop(hold);
+        // }
+
+        if(fabs(HIGHSTAKES_JOYSTICK) > 0){
+            highstake_motor.setVelocity(-pow(HIGHSTAKES_JOYSTICK/100.0,3)*100, vex::percentUnits::pct);
             highstake_motor.spin(forward);
         }
         else if(HIGHSTAKES_POSTION_BUTTON){
-            highstake_motor.spinToPosition(-49.6, degrees);
-        }
+            //highstake_motor.spinToPosition(HIGHSTAKES_POSITION, degrees);
+            highstake_motor.setVelocity(100, vex::percentUnits::pct);
+            highstake_motor.spinToPosition(HIGHSTAKES_POSITION, degrees,false);
+        }   
         else{
             highstake_motor.stop(hold);
         }
@@ -151,7 +177,7 @@ void usercontrol(void) {
             belt_motor.stop(brake);
         }*/
 
-        if(abs(BELT_CONTROL) > 0){
+        if(fabs(BELT_CONTROL) > 0){
             belt_motor.setVelocity(BELT_CONTROL, vex::percentUnits::pct);
             belt_motor.spin(forward);
         }
