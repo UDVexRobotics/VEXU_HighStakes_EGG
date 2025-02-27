@@ -17,8 +17,8 @@ void dual_stick_drive(void){
     
     if(fabs(ySpeed) > 0.05 or fabs(xSpeed) > 0.05){
         //Set the velocity depending on the axis position
-        left_motor_group.setVelocity((ySpeed + xSpeed) * 100,vex::percentUnits::pct);
-        right_motor_group.setVelocity((ySpeed - xSpeed) * 100,vex::percentUnits::pct); 
+        right_motor_group.setVelocity((ySpeed + xSpeed) * 100,vex::percentUnits::pct);
+        left_motor_group.setVelocity((ySpeed - xSpeed) * 100,vex::percentUnits::pct); 
 
         left_motor_group.spin(vex::forward);
         right_motor_group.spin(vex::forward);
@@ -34,8 +34,8 @@ void dual_stick_drive(void){
 
 void tank_drive(void){
     // Controls for Up-Down and Left-Right movement
-    float rightStick = (primary_controller.Axis3.position() / (float)100.0);             // Vertical Movement
-    float leftStick = (primary_controller.Axis2.position() / (float)100.0);            // Horizontal Movement
+    float leftStick = (primary_controller.Axis3.position() / (float)100.0);             // Vertical Movement
+    float rightStick = (primary_controller.Axis2.position() / (float)100.0);            // Horizontal Movement
    
     // Motor speed percentage based on cubed function
     float leftSpeed = pow(leftStick, 3);

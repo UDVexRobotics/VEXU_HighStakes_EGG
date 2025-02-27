@@ -51,17 +51,17 @@ controller primary_controller = controller(primary);
 controller secondary_controller = controller(partner);
 
 // define your global instances of motors and other devices here
-motor left_motor_front = motor(PORT17, BLUE_GEAR, true);
-motor left_motor_mid1 = motor(PORT18, BLUE_GEAR, false);
-motor left_motor_mid2 = motor(PORT19, BLUE_GEAR, true);
-motor left_motor_back = motor(PORT20, BLUE_GEAR, false);
-motor_group left_motor_group = motor_group(left_motor_front, left_motor_mid1, left_motor_mid2, left_motor_back);
+motor left_motor_top_front = motor(PORT7, BLUE_GEAR, false);
+motor left_motor_bottom_front = motor(PORT8, BLUE_GEAR, true);
+motor left_motor_top_back = motor(PORT9, BLUE_GEAR, false);
+motor left_motor_bottom_back = motor(PORT10, BLUE_GEAR, true);
+motor_group left_motor_group = motor_group(left_motor_top_front, left_motor_bottom_front, left_motor_top_back, left_motor_bottom_back);
 
-motor right_motor_front = motor(PORT7, BLUE_GEAR, true);
-motor right_motor_mid1 = motor(PORT8, BLUE_GEAR, false);
-motor right_motor_mid2 = motor(PORT9, BLUE_GEAR, true);
-motor right_motor_back = motor(PORT10, BLUE_GEAR, false);
-motor_group right_motor_group = motor_group(right_motor_front, right_motor_mid1, right_motor_mid2, right_motor_back);
+motor right_motor_top_front = motor(PORT17, BLUE_GEAR, true);
+motor right_motor_bottom_front = motor(PORT18, BLUE_GEAR, false);
+motor right_motor_top_back = motor(PORT19, BLUE_GEAR, true);
+motor right_motor_bottom_back = motor(PORT20, BLUE_GEAR, false);
+motor_group right_motor_group = motor_group(right_motor_top_front, right_motor_bottom_front, right_motor_top_back, right_motor_bottom_back);
 
 motor intake_motor = motor(PORT3, GREEN_GEAR, false);
 motor belt_motor = motor(PORT4, BLUE_GEAR, false);

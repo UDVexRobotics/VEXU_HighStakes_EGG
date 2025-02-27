@@ -111,7 +111,7 @@ void autonomous(void) {
     //Brain.Screen.newLine();
     //PathFollowing::driveForward(10, localizer, odometry_constants, 
     //left_motor_group, right_motor_group);
-    skills_auton();
+    //skills_auton();
 }
 
 // Code block for User Control
