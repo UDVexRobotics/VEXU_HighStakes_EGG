@@ -69,35 +69,43 @@ void skills_auton(void){
     driveForward(1); // Grab Ring 2 & approach group of rings in mid
 
     rotateTo(-ROTATE45/2.25); // closer towards rings
-    driveForward(1.4); // Grab Ring 3 (at big group)
-    this_thread::sleep_for(750);
+    driveForward(1.25); // Grab Ring 3 (at big group)
+    this_thread::sleep_for(500);
     driveForward(-0.7); // Back up
     rotateTo(ROTATE45/4); // Turn Around
 
     driveForward(1); // Grab Ring 4
-    this_thread::sleep_for(750);
+    this_thread::sleep_for(500);
     driveForward(-0.75); // Back up
     rotateTo(-ROTATE45/2); // Turn Around
 
     driveForward(0.75); // Grab Ring 5
-    this_thread::sleep_for(750);
+    this_thread::sleep_for(500);
     driveForward(-2.5); // Back up
     rotateTo(-ROTATE45/3); // Readjust
 
     // Turn towards ring 6 (corner)
-    rotateTo(ROTATE180);
+    rotateTo(ROTATE180+ROTATE45/2);
     driveForward(2); // Go to ring 6
     this_thread::sleep_for(250);
     driveForward(-0.75); // Back up
     rotateTo(ROTATE180); // Turn Around
+    delay = 250;
     task delayTask2(delayed_actuator_toggle, (void *)&delay);  // Drop Mobile Goal
     driveForward(-1); // Go to deposit spot
     this_thread::sleep_for(250);
-    driveForward(1); // drive away from mobile goal
+    driveForward(0.5); // drive away from mobile goal
 
-    rotateTo(ROTATE180); // Turn climb
-    highstake_motor.spinToPosition(-270, degrees); // Climb
-    driveForward(-2);
+    rotateTo(-ROTATE45);
+    driveForward(1.8); // Go to Mobile Goal
+    rotateTo(ROTATE180 + ROTATE45); // Turn towards goal
+    delay = 700;
+    task delayTask3(delayed_actuator_toggle, (void *)&delay); // Grab Mobile Goal
+    driveForward(-1.5); // Grab goal
+
+    // rotateTo(ROTATE180); // Turn climb
+    // highstake_motor.spinToPosition(-270, degrees); // Climb
+    // driveForward(-2);
     
     
 
@@ -111,7 +119,7 @@ void autonomous(void) {
     //Brain.Screen.newLine();
     //PathFollowing::driveForward(10, localizer, odometry_constants, 
     //left_motor_group, right_motor_group);
-    //skills_auton();
+    skills_auton();
 }
 
 // Code block for User Control

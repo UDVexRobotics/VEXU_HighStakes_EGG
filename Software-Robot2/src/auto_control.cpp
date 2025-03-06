@@ -9,6 +9,7 @@ double PIDControl(double target, double position){
 }
 
 void rotateTo(double target) {
+    target = target * -1; // Reverse the target
     bool is_negative = (target < 0);  // Check if the target is negative (counter-clockwise vs clockwise)
     target = fabs(target);
     double avg_pos = 0;

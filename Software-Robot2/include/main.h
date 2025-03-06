@@ -58,7 +58,7 @@ motor left_motor_bottom_back = motor(PORT10, BLUE_GEAR, true);
 motor_group left_motor_group = motor_group(left_motor_top_front, left_motor_bottom_front, left_motor_top_back, left_motor_bottom_back);
 
 motor right_motor_top_front = motor(PORT17, BLUE_GEAR, true);
-motor right_motor_bottom_front = motor(PORT18, BLUE_GEAR, false);
+motor right_motor_bottom_front = motor(PORT15, BLUE_GEAR, false);
 motor right_motor_top_back = motor(PORT19, BLUE_GEAR, true);
 motor right_motor_bottom_back = motor(PORT20, BLUE_GEAR, false);
 motor_group right_motor_group = motor_group(right_motor_top_front, right_motor_bottom_front, right_motor_top_back, right_motor_bottom_back);
