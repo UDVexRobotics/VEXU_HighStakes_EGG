@@ -81,18 +81,18 @@ void rotateTo(double target) {
             left_motor_group.spin(vex::forward, -left_drive, vex::voltageUnits::volt); // Reversed
             right_motor_group.spin(vex::forward, right_drive, vex::voltageUnits::volt);
         }else {
-            std::cout<<"Left: "<<left_drive<<" Right: "<<right_drive<<std::endl;
+            //std::cout<<"Left: "<<left_drive<<" Right: "<<right_drive<<std::endl;
             left_motor_group.spin(vex::forward, left_drive, vex::voltageUnits::volt);
             right_motor_group.spin(vex::forward, -right_drive, vex::voltageUnits::volt); // Reversed
         }
         uint32_t elapsed_time = Brain.Timer.time() - start_time;
         if (elapsed_time > TIMEOUT_TIME) {
-            std::cout<<"Timeout"<<std::endl;
+            //std::cout<<"Timeout"<<std::endl;
             break;
         }
         lastError = (target - avg_pos) * KD;
     }
-    std::cout<<"Done"<<std::endl;
+    //std::cout<<"Done"<<std::endl;
     left_motor_group.stop(vex::brakeType::brake);
     right_motor_group.stop(vex::brakeType::brake);
 }
@@ -130,7 +130,7 @@ void driveForward(float tiles){
         drive = drive + error_Integral + error_Derivative;
 
 
-        std::cout<<"drive: "<<drive<<std::endl;
+        //std::cout<<"drive: "<<drive<<std::endl;
         // P-Control between left and right motors
         double left_voltage_drive = drive;
         double right_voltage_drive = drive;
@@ -154,21 +154,21 @@ void driveForward(float tiles){
         left_motor_group.spin(vex::forward, left_voltage_drive, vex::voltageUnits::volt);
         right_motor_group.spin(vex::forward, right_voltage_drive, vex::voltageUnits::volt);
         
-        std::cout<<"Left: "<<left_voltage_drive<<" Right: "<<right_voltage_drive<<" drive: "<<drive<<std::endl;
+        //std::cout<<"Left: "<<left_voltage_drive<<" Right: "<<right_voltage_drive<<" drive: "<<drive<<std::endl;
 
 
         uint32_t elapsed_time = Brain.Timer.time() - start_time;
         if(elapsed_time > TIMEOUT_TIME){
-            std::cout<<"Timeout"<<std::endl;
+            //std::cout<<"Timeout"<<std::endl;
             break; // Break if the command takes too long
         }
 
         lastError = (t - avg_position) * KD;
     }
 
-    std::cout<<"Done"<<std::endl;
-    std::cout<<t<<" "<<avg_position<<std::endl;
-    std::cout<<!(t+2 > avg_position && avg_position > t-2)<<std::endl;
+    //std::cout<<"Done"<<std::endl;
+    //std::cout<<t<<" "<<avg_position<<std::endl;
+    //std::cout<<!(t+2 > avg_position && avg_position > t-2)<<std::endl;
     // Stop the motors
     left_motor_group.stop(vex::brakeType::brake);
     right_motor_group.stop(vex::brakeType::brake);

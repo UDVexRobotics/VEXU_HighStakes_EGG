@@ -7,7 +7,7 @@
 #define KP 0.025
 #define KI 0.01
 #define KD 0.007
-#define LR_KP 0.03
+#define LR_KP 0.025
 #define WHEELSIZE 2.75    // Inches Diameter
 #define TILEDISTANCE (2 * 12) // 2 feet
 #define MANUAL_OFFSET 1.3

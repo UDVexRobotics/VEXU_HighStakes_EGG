@@ -34,10 +34,17 @@ int delayed_actuator_toggle(void *params){
 // Code block for Pre-Autonomous 
 void pre_auton(void) { 
     std::cout<<"Pre-Autonomous start!"<<std::endl;
-    
 }
 
 void skills_auton(void){
+    // Print Out Motor Temperatures
+    std::cout<<"Left Motor Group Temp: "<<left_motor_group.temperature()<<std::endl;
+    std::cout<<"Right Motor Group Temp: "<<right_motor_group.temperature()<<std::endl;
+    std::cout<<"Intake Motor Temp: "<<intake_motor.temperature()<<std::endl;
+    std::cout<<"Belt Motor Temp: "<<belt_motor.temperature()<<std::endl;
+    std::cout<<"High Stakes Motor Temp: "<<highstake_motor.temperature()<<std::endl;
+    
+    uint32_t start_time = Brain.Timer.time();
     // Freeing intake and expanding
     highstake_motor.setVelocity(100, vex::percentUnits::pct);
     highstake_motor.spin(forward);
@@ -67,25 +74,26 @@ void skills_auton(void){
     driveForward(0.8); // Grab Ring One
     rotateTo(-ROTATE90 - (ROTATE45/1.5)); // Turn Around
     driveForward(1); // Grab Ring 2 & approach group of rings in mid
+    this_thread::sleep_for(200);
 
     rotateTo(-ROTATE45/2.25); // closer towards rings
-    driveForward(1.25); // Grab Ring 3 (at big group)
-    this_thread::sleep_for(500);
-    driveForward(-0.7); // Back up
+    driveForward(1.5); // Grab Ring 3 (at big group)
+    this_thread::sleep_for(100);
+    driveForward(-.75); // Back up
     rotateTo(ROTATE45/4); // Turn Around
 
     driveForward(1); // Grab Ring 4
-    this_thread::sleep_for(500);
+    this_thread::sleep_for(250);
     driveForward(-0.75); // Back up
     rotateTo(-ROTATE45/2); // Turn Around
 
-    driveForward(0.75); // Grab Ring 5
-    this_thread::sleep_for(500);
+    driveForward(0.8); // Grab Ring 5
+    this_thread::sleep_for(250);
     driveForward(-2.5); // Back up
     rotateTo(-ROTATE45/3); // Readjust
 
     // Turn towards ring 6 (corner)
-    rotateTo(ROTATE180+ROTATE45/2);
+    rotateTo(-ROTATE180+ROTATE45/1.5);
     driveForward(2); // Go to ring 6
     this_thread::sleep_for(250);
     driveForward(-0.75); // Back up
@@ -96,18 +104,37 @@ void skills_auton(void){
     this_thread::sleep_for(250);
     driveForward(0.5); // drive away from mobile goal
 
+    intake_motor.stop(coast);
+
     rotateTo(-ROTATE45);
-    driveForward(1.8); // Go to Mobile Goal
+    driveForward(2.5); // Go to Mobile Goal
     rotateTo(ROTATE180 + ROTATE45); // Turn towards goal
+    intake_motor.spin(forward);
     delay = 700;
     task delayTask3(delayed_actuator_toggle, (void *)&delay); // Grab Mobile Goal
     driveForward(-1.5); // Grab goal
+
+    // Turn towards rings
+    rotateTo(ROTATE90);
+    driveForward(1); // Go to rings
+    rotateTo(-ROTATE90); // Turn towards rings
+    driveForward(1); // Go to rings
+
+    // Turn towards corner (top right)
+    rotateTo(ROTATE45);
+    driveForward(1); // Go to ring 1
+    this_thread::sleep_for(250);
+    driveForward(-0.75); // Back up
+    rotateTo(ROTATE180); // Turn Around
+    task delayTask4(delayed_actuator_toggle, (void *)&delay); // Drop Mobile Goal
+    driveForward(-1); // Go to ring 2
+
 
     // rotateTo(ROTATE180); // Turn climb
     // highstake_motor.spinToPosition(-270, degrees); // Climb
     // driveForward(-2);
     
-    
+    std::cout<<"Time: "<<Brain.Timer.time()-start_time<<std::endl;
 
 
 
@@ -216,7 +243,7 @@ void coutLog(){
 
     while(true){
         //std::cout<<"Left: "<<left_motor_group.position(vex::degrees)<<" Right: "<<right_motor_group.position(vex::degrees)<<std::endl;
-        std::cout<<"High Stakes"<<highstake_motor.position(vex::degrees)<<std::endl;
+        //std::cout<<"High Stakes"<<highstake_motor.position(vex::degrees)<<std::endl;
         this_thread::sleep_for(250);
     }
 }

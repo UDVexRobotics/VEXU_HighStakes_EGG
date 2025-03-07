@@ -67,7 +67,7 @@ motor intake_motor = motor(PORT3, GREEN_GEAR, false);
 motor belt_motor = motor(PORT4, BLUE_GEAR, false);
 motor highstake_motor = motor(PORT5, RED_GEAR, false);
 
-digital_out Actuator = digital_out(Brain.ThreeWirePort.A);
+digital_out Actuator = digital_out(Brain.ThreeWirePort.H);
 
 // Vision Sensor Definitions
 vex::vision::signature CUS_BLUE = vex::vision::signature(7, -4767, -3699, -4233, 6899, 8623, 7761, 3.2, 0);
