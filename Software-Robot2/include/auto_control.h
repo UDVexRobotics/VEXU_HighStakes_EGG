@@ -7,7 +7,7 @@
 #define KP 0.025
 #define KI 0.01
 #define KD 0.007
-#define LR_KP 0.025
+#define LR_KP 0.035
 #define WHEELSIZE 2.75    // Inches Diameter
 #define TILEDISTANCE (2 * 12) // 2 feet
 #define MANUAL_OFFSET 1.3
@@ -23,8 +23,8 @@
 double PIDControl(double target, double position);
 
 // Function prototypes
-void rotateTo(double target);
-void driveForward(float tiles);
+void rotateTo(double target, float max_volts = MAXVOLTAGE);
+void driveForward(float tiles, float max_volts = MAXVOLTAGE);
 
 // External declarations
 extern vex::motor left_motor_front;

@@ -81,6 +81,6 @@ void displayStatus() {
         secondary_controller.Screen.setCursor(3, 1);
         primary_controller.Screen.print(battery_status.c_str());
         secondary_controller.Screen.print(battery_status.c_str());
-        vex::this_thread::sleep_for(100);
+        vex::this_thread::sleep_for(1000);
     }
 }

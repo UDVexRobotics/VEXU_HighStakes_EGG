@@ -8,7 +8,7 @@ double PIDControl(double target, double position){
     return (target - position) * KP;
 }
 
-void rotateTo(double target) {
+void rotateTo(double target, float max_volts) {
     target = target * -1; // Reverse the target
     bool is_negative = (target < 0);  // Check if the target is negative (counter-clockwise vs clockwise)
     target = fabs(target);
@@ -23,7 +23,7 @@ void rotateTo(double target) {
 
     // PID Loop
     while (!(target+1 > avg_pos && avg_pos > target-1)) {
-        vex::this_thread::sleep_for(50); // Sleep for 20 milliseconds
+        vex::this_thread::sleep_for(25); // Sleep for 20 milliseconds
 
         double left_pos = fabs(left_motor_group.position(vex::degrees));
         double right_pos = fabs(right_motor_group.position(vex::degrees));
@@ -37,7 +37,7 @@ void rotateTo(double target) {
             error_Integral = -1;
 
         drive = drive + error_Integral + error_Derivative;
-
+        
         //std::cout<<"Avg: "<<avg_pos<<" target: "<<target<<" drive: "<<drive<<std::endl;
 
         //Clamp voltage to min and max 
@@ -52,12 +52,12 @@ void rotateTo(double target) {
 
         
 
-        // Correct the drive values between the left and right motors (Fix Off-balanced drive)
-        if (left_pos > right_pos) {
-            left_drive += (right_pos - left_pos) * LR_KP;
-        } else {
-            right_drive += (left_pos - right_pos) * LR_KP;
-        }
+        // // Correct the drive values between the left and right motors (Fix Off-balanced drive)
+        // if ((right_pos - left_pos) > 10) { // If the right motor is ahead of the left motor by X degrees
+        //     left_drive += (right_pos - left_pos) * LR_KP;
+        // } else if ((left_pos - right_pos) > 10){
+        //     right_drive += (left_pos - right_pos) * LR_KP;
+        // }
 
         // Set the motor voltages
         // Don't allow drive to go below minimum voltage (speed)
@@ -97,7 +97,7 @@ void rotateTo(double target) {
     right_motor_group.stop(vex::brakeType::brake);
 }
 
-void driveForward(float tiles){
+void driveForward(float tiles, float max_volts){
     int t = (int)(tiles * (TILEREVOLUTIONS(MANUAL_OFFSET)) * 360.0); // Convert tiles to degrees
     //std::cout<<((TILEREVOLUTIONS(MANUAL_OFFSET)) * 360.0)<<std::endl;
     //std::cout<<TILEREVOLUTIONS(MANUAL_OFFSET)<<std::endl;
@@ -114,7 +114,7 @@ void driveForward(float tiles){
     double error_Integral = 0;
     
     while(!(t+2 > avg_position && avg_position > t-2)){
-        vex::this_thread::sleep_for(50);
+        vex::this_thread::sleep_for(25);
         double left_position = left_motor_group.position(vex::degrees);
         double right_position = right_motor_group.position(vex::degrees);
         avg_position = (left_position + right_position) / 2;
@@ -140,16 +140,23 @@ void driveForward(float tiles){
         left_voltage_drive = (left_voltage_drive > -MINVOLTAGE && left_voltage_drive < 0) ? -MINVOLTAGE : left_voltage_drive;
 
         // Don't allow left_voltage_drive to go above maximum voltage (speed)
-        left_voltage_drive = (left_voltage_drive > MAXVOLTAGE) ? MAXVOLTAGE : left_voltage_drive;
-        left_voltage_drive = (left_voltage_drive < -MAXVOLTAGE) ? -MAXVOLTAGE : left_voltage_drive;
+        left_voltage_drive = (left_voltage_drive > max_volts) ? max_volts : left_voltage_drive;
+        left_voltage_drive = (left_voltage_drive < -max_volts) ? -max_volts : left_voltage_drive;
 
         // Don't allow right_voltage_drive to go below minimum voltage (speed)
         right_voltage_drive = (right_voltage_drive < MINVOLTAGE && right_voltage_drive > 0) ? MINVOLTAGE : right_voltage_drive;
         right_voltage_drive = (right_voltage_drive > -MINVOLTAGE && right_voltage_drive < 0) ? -MINVOLTAGE : right_voltage_drive;
 
         // Don't allow right_voltage_drive to go above maximum voltage (speed)
-        right_voltage_drive = (right_voltage_drive > MAXVOLTAGE) ? MAXVOLTAGE : right_voltage_drive;
-        right_voltage_drive = (right_voltage_drive < -MAXVOLTAGE) ? -MAXVOLTAGE : right_voltage_drive;
+        right_voltage_drive = (right_voltage_drive > max_volts) ? max_volts : right_voltage_drive;
+        right_voltage_drive = (right_voltage_drive < -max_volts) ? -max_volts : right_voltage_drive;
+        
+        // Correct the drive values between the left and right motors (Fix Off-balanced drive)
+        if ((right_position - left_position) > 10) { // If the right motor is ahead of the left motor by X degrees
+            left_voltage_drive += (right_position - left_position) * LR_KP;
+        } else if ((left_position - right_position) > 10){
+            right_voltage_drive += (left_position - right_position) * LR_KP;
+        }
 
         left_motor_group.spin(vex::forward, left_voltage_drive, vex::voltageUnits::volt);
         right_motor_group.spin(vex::forward, right_voltage_drive, vex::voltageUnits::volt);

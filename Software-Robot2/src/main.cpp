@@ -54,14 +54,16 @@ void skills_auton(void){
     //belt_motor.stop(coast);
     highstake_motor.stop(hold);
 
+
+
     // Going for Mobile Goal
-    driveForward(-1.25);
-    rotateTo(-ROTATE45);
+    driveForward(-1.25,MAXVOLTAGE-2);
+    rotateTo(-ROTATE45,MAXVOLTAGE-3);
     //std::thread(delayed_actuator_toggle,(1000));
     uint32_t delay = 500;
     task delayTask1(delayed_actuator_toggle, (void *)&delay); // Grab Mobile Goal
-    driveForward(-0.8);
-    rotateTo((ROTATE45/10) + ROTATE45);
+    driveForward(-0.45,MAXVOLTAGE-2);
+    rotateTo((ROTATE45/10) + ROTATE45,MAXVOLTAGE-3);
     
     // Turn on Intake
     intake_motor.setVelocity(-100, vex::percentUnits::pct);
@@ -71,33 +73,40 @@ void skills_auton(void){
     
 
     // Grab Ring One
-    driveForward(0.8); // Grab Ring One
-    rotateTo(-ROTATE90 - (ROTATE45/1.5)); // Turn Around
-    driveForward(1); // Grab Ring 2 & approach group of rings in mid
+    driveForward(1,MAXVOLTAGE-2); // Grab Ring One
+    this_thread::sleep_for(250);
+    driveForward(-0.2,MAXVOLTAGE-2); // Back up
+    //rotateTo(-ROTATE90 - (ROTATE45/1.5)); // Turn Around
+    rotateTo(-ROTATE90 - (ROTATE45));
+    //driveForward(1); // Grab Ring 2 & approach group of rings in mid
+    driveForward(2.5); // Grab Ring 2 & approach group of rings in mid
     this_thread::sleep_for(200);
 
-    rotateTo(-ROTATE45/2.25); // closer towards rings
-    driveForward(1.5); // Grab Ring 3 (at big group)
+    //rotateTo(-ROTATE45/2,MAXVOLTAGE-2); // closer towards rings
+    //driveForward(1.5,MAXVOLTAGE-2); // Grab Ring 3 (at big group)
     this_thread::sleep_for(100);
-    driveForward(-.75); // Back up
-    rotateTo(ROTATE45/4); // Turn Around
+    driveForward(-.75,MAXVOLTAGE-2); // Back up
+    rotateTo(ROTATE45/2,MAXVOLTAGE-2); // Turn Around
 
-    driveForward(1); // Grab Ring 4
+    driveForward(0.85,MAXVOLTAGE-2); // Grab Ring 4
     this_thread::sleep_for(250);
-    driveForward(-0.75); // Back up
-    rotateTo(-ROTATE45/2); // Turn Around
+    driveForward(-0.85,MAXVOLTAGE-2); // Back up
+    rotateTo(-ROTATE45,MAXVOLTAGE-2); // Turn Around
 
-    driveForward(0.8); // Grab Ring 5
+    driveForward(0.85,MAXVOLTAGE-2); // Grab Ring 5
     this_thread::sleep_for(250);
-    driveForward(-2.5); // Back up
-    rotateTo(-ROTATE45/3); // Readjust
+    driveForward(-0.85,MAXVOLTAGE-2); // Back up
+    rotateTo(ROTATE45/2,MAXVOLTAGE-2); // Readjust
+
+    driveForward(-2.5,MAXVOLTAGE-2); // Back up
+    //rotateTo(-ROTATE45/2,MAXVOLTAGE-2); // Readjust
 
     // Turn towards ring 6 (corner)
-    rotateTo(-ROTATE180+ROTATE45/1.5);
+    rotateTo(-ROTATE180,MAXVOLTAGE-2);
     driveForward(2); // Go to ring 6
     this_thread::sleep_for(250);
     driveForward(-0.75); // Back up
-    rotateTo(ROTATE180); // Turn Around
+    rotateTo(ROTATE180,MAXVOLTAGE-2); // Turn Around
     delay = 250;
     task delayTask2(delayed_actuator_toggle, (void *)&delay);  // Drop Mobile Goal
     driveForward(-1); // Go to deposit spot
@@ -106,8 +115,11 @@ void skills_auton(void){
 
     intake_motor.stop(coast);
 
-    rotateTo(-ROTATE45);
-    driveForward(2.5); // Go to Mobile Goal
+    // Realign Against wall
+    rotateTo(-ROTATE45,MAXVOLTAGE-2);
+    driveForward(-0.75); // Go to ring 7
+
+    driveForward(3); // Go to Mobile Goal
     rotateTo(ROTATE180 + ROTATE45); // Turn towards goal
     intake_motor.spin(forward);
     delay = 700;
