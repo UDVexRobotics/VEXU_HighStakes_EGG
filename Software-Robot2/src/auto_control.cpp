@@ -1,6 +1,18 @@
 #include "auto_control.h"
 #include <iostream>
 
+// Gets average motor position of all motors and sets the motor group to that position
+double left_average_motor_position(){
+    double left_average_position = (left_motor_top_front.position(vex::degrees) + left_motor_top_back.position(vex::degrees) + left_motor_bottom_front.position(vex::degrees) + left_motor_bottom_back.position(vex::degrees))/4;
+    left_motor_group.setPosition(left_average_position, vex::degrees);
+    return left_average_position;
+}
+
+double right_average_motor_position(){
+    double right_average_position = (right_motor_top_front.position(vex::degrees) + right_motor_top_back.position(vex::degrees) + right_motor_bottom_front.position(vex::degrees) + right_motor_bottom_back.position(vex::degrees))/4;
+    right_motor_group.setPosition(right_average_position, vex::degrees);
+    return right_average_position;
+}
 
 
 // PID Control
@@ -25,8 +37,8 @@ void rotateTo(double target, float max_volts) {
     while (!(target+1 > avg_pos && avg_pos > target-1)) {
         vex::this_thread::sleep_for(25); // Sleep for 20 milliseconds
 
-        double left_pos = fabs(left_motor_group.position(vex::degrees));
-        double right_pos = fabs(right_motor_group.position(vex::degrees));
+        double left_pos = fabs(left_average_motor_position());
+        double right_pos = fabs(right_average_motor_position());
         avg_pos = (left_pos + right_pos) / 2.0;
         double drive = PIDControl(target, avg_pos);
         error_Integral += (target - avg_pos) * KI;
@@ -112,24 +124,29 @@ void driveForward(float tiles, float max_volts){
 
     double lastError = 0;
     double error_Integral = 0;
+    int clk  = 0; // DEBUGGING
     
-    while(!(t+2 > avg_position && avg_position > t-2)){
+    while(!(t+3 > avg_position && avg_position > t-3)){
         vex::this_thread::sleep_for(25);
-        double left_position = left_motor_group.position(vex::degrees);
-        double right_position = right_motor_group.position(vex::degrees);
+        clk += 25;
+        double left_position = left_average_motor_position();
+        double right_position = right_average_motor_position();
         avg_position = (left_position + right_position) / 2;
         double drive = PIDControl(t, avg_position); // Calculate the drive value
         error_Integral += (t - avg_position) * KI;
         double error_Derivative = ((t - avg_position) - lastError) * KD;
 
-        if (error_Integral > 1)
-            error_Integral = 1;
-        else if (error_Integral < -1)
-            error_Integral = -1;
+        if (error_Integral > 2)
+            error_Integral = 2;
+        else if (error_Integral < -2)
+            error_Integral = -2;
 
         drive = drive + error_Integral + error_Derivative;
 
-
+        if((clk % 250) == 0){
+            std::cout<<"P: "<<drive<<" I: "<<error_Integral<<" D: "<<error_Derivative<<std::endl;
+            clk = 0;
+        }
         //std::cout<<"drive: "<<drive<<std::endl;
         // P-Control between left and right motors
         double left_voltage_drive = drive;
@@ -152,9 +169,9 @@ void driveForward(float tiles, float max_volts){
         right_voltage_drive = (right_voltage_drive < -max_volts) ? -max_volts : right_voltage_drive;
         
         // Correct the drive values between the left and right motors (Fix Off-balanced drive)
-        if ((right_position - left_position) > 10) { // If the right motor is ahead of the left motor by X degrees
+        if ((right_position - left_position) > 5) { // If the right motor is ahead of the left motor by X degrees
             left_voltage_drive += (right_position - left_position) * LR_KP;
-        } else if ((left_position - right_position) > 10){
+        } else if ((left_position - right_position) > 5){
             right_voltage_drive += (left_position - right_position) * LR_KP;
         }
 
@@ -171,6 +188,7 @@ void driveForward(float tiles, float max_volts){
         }
 
         lastError = (t - avg_position) * KD;
+        
     }
 
     //std::cout<<"Done"<<std::endl;

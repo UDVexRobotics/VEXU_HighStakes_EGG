@@ -34,6 +34,10 @@ int delayed_actuator_toggle(void *params){
 // Code block for Pre-Autonomous 
 void pre_auton(void) { 
     std::cout<<"Pre-Autonomous start!"<<std::endl;
+    if(Brain.Battery.current() < 40){
+        primary_controller.rumble("...");
+        secondary_controller.rumble("...");
+    }
 }
 
 void skills_auton(void){
@@ -152,13 +156,20 @@ void skills_auton(void){
 
 }
 
+void match_auton_red(){
+    driveForward(-4,12);
+}
+
+void match_autom_blue(){
+    return;
+}
+
 // Code block for Autonomous
 void autonomous(void) {
-    //Brain.Screen.print("Autonomous start!");
-    //Brain.Screen.newLine();
-    //PathFollowing::driveForward(10, localizer, odometry_constants, 
-    //left_motor_group, right_motor_group);
-    skills_auton();
+    //primary_controller.rumble(".-.--");
+    //skills_auton();
+    match_auton_red();
+    //match_autom_blue();
 }
 
 // Code block for User Control
@@ -257,6 +268,16 @@ void coutLog(){
         //std::cout<<"Left: "<<left_motor_group.position(vex::degrees)<<" Right: "<<right_motor_group.position(vex::degrees)<<std::endl;
         //std::cout<<"High Stakes"<<highstake_motor.position(vex::degrees)<<std::endl;
         this_thread::sleep_for(250);
+        std::cout<<"Encoder_LeftGroup: "<<left_motor_group.position(vex::degrees)<<" Encoder_RightGroup: "<<right_motor_group.position(vex::degrees)<<std::endl;
+        std::cout<<"Encoder_LeftFront: "<<left_motor_top_front.position(vex::degrees)<<" Encoder_RightFront: "<<right_motor_top_front.position(vex::degrees)<<std::endl;
+        std::cout<<"Encoder_LeftBack: "<<left_motor_top_back.position(vex::degrees)<<" Encoder_RightBack: "<<right_motor_top_back.position(vex::degrees)<<std::endl;
+        std::cout<<"Encoder_LeftMid1: "<<left_motor_bottom_front.position(vex::degrees)<<" Encoder_RightMid1: "<<right_motor_bottom_front.position(vex::degrees)<<std::endl;
+        std::cout<<"Encoder_LeftMid2: "<<left_motor_bottom_back.position(vex::degrees)<<" Encoder_RightMid2: "<<right_motor_bottom_back.position(vex::degrees)<<std::endl;
+        std::cout<<"Left Motor Average: "<<(left_motor_top_front.position(vex::degrees) + left_motor_top_back.position(vex::degrees) + left_motor_bottom_front.position(vex::degrees) + left_motor_bottom_back.position(vex::degrees))/4<<std::endl;
+        std::cout<<"Right Motor Average: "<<(right_motor_top_front.position(vex::degrees) + right_motor_top_back.position(vex::degrees) + right_motor_bottom_front.position(vex::degrees) + right_motor_bottom_back.position(vex::degrees))/4<<std::endl;
+        std::cout<<"Left Voltage: "<<left_motor_group.voltage()<<" Right Voltage: "<<right_motor_group.voltage()<<std::endl;
+        std::cout<<"====================================================="<<std::endl;
+
     }
 }
 

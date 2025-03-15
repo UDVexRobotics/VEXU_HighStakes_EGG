@@ -77,9 +77,23 @@ VisionState currentState = RED;
 
 driveMode currentDriveMode = DUAL_STICK;
 
+enum matchInfo{RED_TEAM,BLUE_TEAM,AUTOM_SKILLS,AUTO_MATCH,USER_CONTROL};
+
 // Global Variables
 volatile bool belt_toggle_state = false;
 volatile bool color_detected = true; // TODO: Set up control to vision sensor
 volatile bool reverse_belt = false;
+
+
+// Function Prototypes
+void actuator_thread(void);
+int delayed_actuator_toggle(void *params);
+void pre_auton(void);
+void skills_auton(void);
+void coutLog(void);
+void usercontrol(void);
+void autonomous(void);
+void match_auton_red(void);
+void match_autom_blue(void);
 
 #endif // MAIN_H
